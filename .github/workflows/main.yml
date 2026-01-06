@@ -1,42 +1,79 @@
 name: Release Module
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number (e.g., 1.0.0)"
+        required: true
+        type: string
+      release_notes:
+        description: "Release notes"
+        required: false
+        type: string
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # Substitute the Manifest and Download URLs in the module.json
-      - name: Substitute Manifest and Download Links For Versioned Release
-        id: sub_manifest_link_version
-        uses: microsoft/variable-substitution@v1
-        with:
-          files: "module.json"
-        env:
-          version: ${{github.ref_name}}
-          url: https://github.com/${{github.repository}}
-          manifest: https://github.com/${{github.repository}}/releases/latest/download/module.json
-          download: https://github.com/${{github.repository}}/releases/download/${{github.ref_name}}/module.zip
+      - name: Validate version format
+        run: |
+          if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: Version must be in format X.Y.Z (e.g., 1.0.0)"
+            exit 1
+          fi
 
-      # Create a zip file with all files required by the module to function
+      - name: Check tag doesn't exist
+        run: |
+          if git ls-remote --tags origin | grep -q "refs/tags/v${{ inputs.version }}$"; then
+            echo "Error: Tag v${{ inputs.version }} already exists"
+            exit 1
+          fi
+
+      - name: Update module.json
+        run: |
+          # Update version
+          sed -i 's/"version": "[^"]*"/"version": "${{ inputs.version }}"/' module.json
+
+          # Update download URL to point to the release asset we are about to create
+          sed -i 's|"download": "[^"]*"|"download": "https://github.com/${{ github.repository }}/releases/download/v${{ inputs.version }}/module.zip"|' module.json
+
+          # Update manifest URL to point to the specific version release (optional, but good for version locking)
+          # Or keep it pointing to latest? The user's request emphasized "manifest url for zip".
+          # Usually manifest points to latest. I will leave manifest separate or update it if needed.
+          # The reference only updates download. I'll update download only.
+
+          # Verify changes
+          echo "Updated module.json:"
+          grep -E '"version"|"download"' module.json
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add module.json
+          git commit -m "Release v${{ inputs.version }}"
+
+      - name: Create and push tag
+        run: |
+          git tag "v${{ inputs.version }}"
+          git push origin HEAD:${{ github.ref_name }}
+          git push origin "v${{ inputs.version }}"
+
       - name: Create Zip Archive
         run: zip -r ./module.zip . -x ".git/*" ".github/*" "task.md" "walkthrough.md" "implementation_plan.md"
 
-      # Create a release for this specific version
-      - name: Update Release with Files
-        id: create_version_release
+      - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          allowUpdates: true # Set this to false if you want to prevent re-running the release command.
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+          tag: "v${{ inputs.version }}"
+          name: "Release v${{ inputs.version }}"
+          body: "${{ inputs.release_notes }}"
+          artifacts: "module.json,module.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "./module.json, ./module.zip"
-          tag: ${{ github.ref_name }}
-          body: "Hex Flower Engine Release ${{ github.ref_name }}"

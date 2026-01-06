@@ -11,7 +11,7 @@ class HexFlowerManagerShim extends FormApplication {
         return mergeObject(super.defaultOptions, {
             id: "hex-flower-manager-shim",
             title: "Hex Flower Manager",
-            template: "modules/hex-flower-engine/templates/empty.html", // Placeholder
+            template: "modules/hexflower/templates/empty.html", // Placeholder
             width: 450,
             height: "auto",
         });
@@ -28,7 +28,7 @@ class HexFlowerManagerShim extends FormApplication {
 
 Hooks.on("init", () => {
     // Register Settings Menu
-    game.settings.registerMenu("hex-flower-engine", "manager", {
+    game.settings.registerMenu("hexflower", "manager", {
         name: "Hex Flower Manager",
         label: "Open Manager",
         hint: "Create, import, and delete Hex Flowers.",
