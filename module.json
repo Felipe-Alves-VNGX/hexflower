@@ -13,6 +13,13 @@
   ],
   "esmodules": ["scripts/init.js"],
   "styles": ["styles/hex-flower.css"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
   "flags": [],
   "url": "https://github.com/Felipe-Alves-VNGX/hexflower",
   "manifest": "https://github.com/Felipe-Alves-VNGX/hexflower/releases/latest/download/module.json",
