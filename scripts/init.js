@@ -48,20 +48,15 @@ Hooks.on("init", () => {
 });
 
 Hooks.on("getSceneControlButtons", (controls) => {
-    controls.push({
-        name: "hex-flower",
-        title: "Hex Flower",
-        layer: "controls", // No specific layer needed, but required arg for some versions
-        icon: "hex-flower-control-icon", // Defined in CSS
-        visible: true,
-        tools: [
-            {
-                name: "navigator",
-                title: "Hex Flower Navigator",
-                icon: "fas fa-compass",
-                onClick: () => openNavigator(),
-                button: true
-            }
-        ]
-    });
+    const tokenControls = controls.find((c) => c.name === "token");
+    if (tokenControls) {
+        tokenControls.tools.push({
+            name: "navigator",
+            title: "Hex Flower Navigator",
+            icon: "fas fa-compass", // Standard icon for consistency, or use "hex-flower-control-icon" if preferred
+            visible: true,
+            onClick: () => openNavigator(),
+            button: true
+        });
+    }
 });
