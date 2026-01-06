@@ -14,7 +14,7 @@
   "esmodules": ["scripts/init.js"],
   "styles": ["styles/hex-flower.css"],
   "flags": [],
-  "url": "https://github.com/felipe-alves/hexflower",
-  "manifest": "https://github.com/felipe-alves/hexflower/releases/latest/download/module.json",
+  "url": "https://github.com/Felipe-Alves-VNGX/hexflower",
+  "manifest": "https://github.com/Felipe-Alves-VNGX/hexflower/releases/latest/download/module.json",
   "download": "https://github.com/Felipe-Alves-VNGX/hexflower/releases/download/v1.0.3/module.zip"
 }
