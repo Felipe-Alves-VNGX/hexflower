@@ -1,7 +1,7 @@
 {
   "id": "hexflower",
   "title": "Hex Flower Engine",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "compatibility": {
     "minimum": "11",
     "verified": "12"
