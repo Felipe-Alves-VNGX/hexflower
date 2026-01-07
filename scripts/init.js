@@ -1,5 +1,6 @@
 import { openManager } from "./manager.js";
 import { openNavigator } from "./navigator.js";
+import { HexFlowerNavigatorSidebar } from "./sidebar-navigator.js";
 
 /**
  * Validates that basic Foundry VTT globals exist.
@@ -27,6 +28,9 @@ class HexFlowerManagerShim extends FormApplication {
 }
 
 Hooks.on("init", () => {
+    // Register Sidebar Tab
+    CONFIG.ui.hexflower = HexFlowerNavigatorSidebar;
+
     // Register Settings Menu
     game.settings.registerMenu("hexflower", "manager", {
         name: "Hex Flower Manager",
@@ -53,9 +57,12 @@ Hooks.on("getSceneControlButtons", (controls) => {
         tokenControls.tools.push({
             name: "navigator",
             title: "Hex Flower Navigator",
-            icon: "fas fa-compass", // Standard icon for consistency, or use "hex-flower-control-icon" if preferred
+            icon: "fas fa-compass", 
             visible: true,
-            onClick: () => openNavigator(),
+            onClick: () => {
+                // Activate the sidebar tab
+                ui.sidebar.activateTab("hexflower");
+            },
             button: true
         });
     }

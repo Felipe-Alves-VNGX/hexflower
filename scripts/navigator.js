@@ -10,21 +10,21 @@ const FLAG_STATE = "hex_flower_state";
 // -------------------------------------------------------------
 // Helper: Get Display Name
 // -------------------------------------------------------------
-function getCellName(cell) {
+export function getCellName(cell) {
     return cell.bioma || cell.stage || cell.title || cell.name || cell.encounter_type || "Hex";
 }
 
 // -------------------------------------------------------------
 // Helper: Get Description / Details
 // -------------------------------------------------------------
-function getCellDescription(cell) {
+export function getCellDescription(cell) {
     return cell.description || cell.summary || "";
 }
 
 // -------------------------------------------------------------
 // Helper: Render Object to HTML
 // -------------------------------------------------------------
-function renderProperties(obj, excludeKeys = []) {
+export function renderProperties(obj, excludeKeys = []) {
     let html = "";
 
     const formatValue = (v) => {
@@ -90,7 +90,7 @@ function hexCorners(cx, cy, size) {
 // -------------------------------------------------------------
 // 3) Generator Function
 // -------------------------------------------------------------
-function generateHexSVG(data, currentCoord) {
+export function generateHexSVG(data, currentCoord) {
     const cells = data.cells || [];
     if (!cells.length) return "<p>No Data (Check Manager)</p>";
 
@@ -159,7 +159,7 @@ const DIRECTION_TABLE = [
     { min: 2, max: 2, dir: "NW", dq: -1, dr: 0, ds: 1 }
 ];
 
-async function handleHexClick(startCell, allCells, dialogApp, hexData, flowerId) {
+export async function handleHexClick(startCell, allCells, dialogApp, hexData, flowerId) {
     // 1. Roll 2d6
     const roll = new Roll("2d6");
     await roll.evaluate();
@@ -200,16 +200,18 @@ async function handleHexClick(startCell, allCells, dialogApp, hexData, flowerId)
     await game.user.setFlag(FLAG_SCOPE, FLAG_STATE, allStates);
 
     // 8. Visual Update
-    if (dialogApp && dialogApp.element) {
+    // Support both Dialog (app.element) and SidebarTab (app.element is already the jquery object usually)
+    const $el = dialogApp.element || $(dialogApp); 
+    if ($el && $el.length) {
         const newSVG = generateHexSVG(hexData, targetCell.coord);
-        const $container = dialogApp.element.find("#hex-flower-container");
+        const $container = $el.find("#hex-flower-container");
         $container.html(newSVG);
 
         // Re-attach listeners is handled by the initial render wrapper usually?
         // No, in the original macro it re-attached listeners explicitly.
         // We need to re-attach listeners here too.
         
-        const $tooltip = dialogApp.element.find("#hex-flower-info");
+        const $tooltip = $el.find("#hex-flower-info");
         $container.find(".hex-flower-cell").hover(
             function () {
                 const dataStr = $(this).attr("data-cell");

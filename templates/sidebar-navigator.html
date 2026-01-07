@@ -1,0 +1,65 @@
+<div class="hex-flower-sidebar">
+    <div class="hex-flower-header flexrow">
+        <select class="hex-flower-select">
+            {{#each flowers}}
+            <option value="{{this.id}}" {{#if this.active}}selected{{/if}}>{{this.name}}</option>
+            {{/each}}
+        </select>
+        <button class="hex-flower-refresh" title="Refresh">
+            <i class="fas fa-sync"></i>
+        </button>
+    </div>
+
+    <div id="hex-flower-container" class="hex-flower-viewer">
+        {{{svg}}}
+    </div>
+
+    <div id="hex-flower-info" class="hex-flower-tooltip" style="display:none;"></div>
+</div>
+
+<style>
+.hex-flower-sidebar {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.hex-flower-header {
+    flex: 0 0 auto;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid #000;
+}
+.hex-flower-select {
+    flex: 1;
+    margin-right: 5px;
+}
+.hex-flower-refresh {
+    flex: 0 0 24px;
+    line-height: 24px;
+    text-align: center;
+}
+.hex-flower-viewer {
+    flex: 1;
+    background: #222;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.hex-flower-tooltip {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 10px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    font-size: 0.9em;
+    pointer-events: none;
+    z-index: 100;
+}
+</style>
