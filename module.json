@@ -11,7 +11,7 @@
       "name": "Felipe Alves"
     }
   ],
-  "esmodules": ["dist/module.js"],
+  "esmodules": ["dist/module.mjs"],
   "styles": ["styles/hex-flower.css"],
   "flags": [],
   "url": "https://github.com/Felipe-Alves-VNGX/hexflower",

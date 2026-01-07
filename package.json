@@ -2,7 +2,7 @@
   "name": "hexflower-module",
   "version": "1.0.8",
   "description": "Hex Flower Engine for Foundry VTT",
-  "main": "dist/module.js",
+  "main": "dist/module.mjs",
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build"
