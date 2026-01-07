@@ -1,6 +1,5 @@
 import { openManager } from "./manager.js";
 import { openNavigator } from "./navigator.js";
-import "./user-context.js";
 
 /**
  * Validates that basic Foundry VTT globals exist.
@@ -30,9 +29,9 @@ class HexFlowerManagerShim extends FormApplication {
 Hooks.on("init", () => {
     // Register Settings Menu
     game.settings.registerMenu("hexflower", "manager", {
-        name: "HEXFLOWER.ManagerTitle",
-        label: "HEXFLOWER.OpenManager",
-        hint: "HEXFLOWER.ManagerHint",
+        name: "Hex Flower Manager",
+        label: "Open Manager",
+        hint: "Create, import, and delete Hex Flowers.",
         icon: "fas fa-seedling",
         type: HexFlowerManagerShim,
         restricted: true
@@ -53,7 +52,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     if (tokenControls) {
         tokenControls.tools.push({
             name: "navigator",
-            title: "HEXFLOWER.NavigatorTitle",
+            title: "Hex Flower Navigator",
             icon: "fas fa-compass", // Standard icon for consistency, or use "hex-flower-control-icon" if preferred
             visible: true,
             onClick: () => openNavigator(),
