@@ -28,9 +28,6 @@ class HexFlowerManagerShim extends FormApplication {
 }
 
 Hooks.on("init", () => {
-    // Register Sidebar Tab
-    CONFIG.ui.hexflower = HexFlowerNavigatorSidebar;
-
     // Register Settings Menu
     game.settings.registerMenu("hexflower", "manager", {
         name: "Hex Flower Manager",
@@ -49,6 +46,30 @@ Hooks.on("init", () => {
     
     // Log
     console.log("Hex Flower Engine | Initialized");
+});
+
+Hooks.on("ready", () => {
+    // Instantiate the Sidebar Tab
+    ui.hexflower = new HexFlowerNavigatorSidebar();
+    
+    // Add to Sidebar tabs so it can be activated
+    ui.sidebar.tabs.hexflower = ui.hexflower;
+});
+
+// Inject the Sidebar Icon
+Hooks.on("renderSidebar", (app, html) => {
+    const tabs = html.find("#sidebar-tabs");
+    const tabLink = $(`<a class="item" data-tab="hexflower" data-tooltip="Hex Flower Navigator">
+        <i class="fas fa-compass"></i>
+    </a>`);
+
+    // Insert before Settings (the last one usually)
+    const settingsTab = tabs.find('[data-tab="settings"]');
+    if (settingsTab.length) {
+        settingsTab.before(tabLink);
+    } else {
+        tabs.append(tabLink);
+    }
 });
 
 Hooks.on("getSceneControlButtons", (controls) => {
