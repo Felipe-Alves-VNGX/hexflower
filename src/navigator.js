@@ -149,32 +149,83 @@ export function generateHexSVG(data, currentCoord) {
 // -------------------------------------------------------------
 // 5) Navigation & Game Logic
 // -------------------------------------------------------------
-const DIRECTION_TABLE = [
-    { min: 12, max: 12, dir: "N", dq: 0, dr: -1, ds: 1 },
-    { min: 10, max: 11, dir: "NE", dq: 1, dr: -1, ds: 0 },
-    { min: 8, max: 9, dir: "SE", dq: 1, dr: 0, ds: -1 },
-    { min: 7, max: 7, dir: "SAME", dq: 0, dr: 0, ds: 0 }, // Stay
-    { min: 5, max: 6, dir: "S", dq: 0, dr: 1, ds: -1 },
-    { min: 3, max: 4, dir: "SW", dq: -1, dr: 1, ds: 0 },
-    { min: 2, max: 2, dir: "NW", dq: -1, dr: 0, ds: 1 }
+const DIRECTION_PRESETS = {
+    "N": { dq: 0, dr: -1, ds: 1 },
+    "NE": { dq: 1, dr: -1, ds: 0 },
+    "SE": { dq: 1, dr: 0, ds: -1 },
+    "S": { dq: 0, dr: 1, ds: -1 },
+    "SW": { dq: -1, dr: 1, ds: 0 },
+    "NW": { dq: -1, dr: 0, ds: 1 },
+    "SAME": { dq: 0, dr: 0, ds: 0 }
+};
+
+const DEFAULT_RULES = [
+    { min: 12, max: 12, dir: "N" },
+    { min: 10, max: 11, dir: "NE" },
+    { min: 8, max: 9, dir: "SE" },
+    { min: 7, max: 7, dir: "SAME" },
+    { min: 5, max: 6, dir: "S" },
+    { min: 3, max: 4, dir: "SW" },
+    { min: 2, max: 2, dir: "NW" }
 ];
 
-export async function handleHexClick(startCell, allCells, dialogApp, hexData, flowerId) {
+export async function handleHexClick(startCell, allCells, dialogApp, settings, flowerId) {
+    const rules = settings.navigationRules || DEFAULT_RULES;
+    const edgeBehavior = settings.edgeBehavior || "stop";
+
     // 1. Roll 2d6
-    const roll = new Roll("2d6");
-    await roll.evaluate();
+    const roll = await new Roll("2d6").evaluate(); // Foundry V12 await
     const total = roll.total;
 
+    // Dice So Nice
+    if (game.modules.get("dice-so-nice")?.active) {
+        game.dice3d.showForRoll(roll, game.user, true);
+    }
+
     // 2. Find Direction
-    let entry = DIRECTION_TABLE.find(d => total >= d.min && total <= d.max);
-    if (!entry) entry = { dir: "UNKNOWN", dq: 0, dr: 0 };
+    let entry = rules.find(d => total >= d.min && total <= d.max);
+    if (!entry) {
+        ui.notifications.warn(`No rule for roll ${total}, staying put.`);
+        entry = { dir: "SAME" };
+    }
+    
+    // Map Dir String to Deltas
+    const deltas = DIRECTION_PRESETS[entry.dir] || { dq: 0, dr: 0 };
 
     // 3. Calculate New Coord
-    const newQ = startCell.coord.q + entry.dq;
-    const newR = startCell.coord.r + entry.dr;
+    const newQ = startCell.coord.q + deltas.dq;
+    const newR = startCell.coord.r + deltas.dr;
 
-    // 4. Find Target Hex
-    const targetCell = allCells.find(c => c.coord.q === newQ && c.coord.r === newR) || startCell;
+    // 4. Find Target Hex & Apply Edge Behavior
+    let targetCell = allCells.find(c => c.coord.q === newQ && c.coord.r === newR);
+    let edgeMsg = "";
+
+    if (!targetCell) {
+        // Out of Bounds Logic
+        if (entry.dir === "SAME") {
+             targetCell = startCell;
+        } else if (edgeBehavior === "wrap" || edgeBehavior === "loop") {
+            // Antipodal wrap: (-q, -r)
+            // Assuming 0,0 center. 
+            targetCell = allCells.find(c => c.coord.q === -newQ && c.coord.r === -newR);
+            if (targetCell) edgeMsg = "(Wrapped)";
+            else targetCell = startCell; // Fallback if no antipodal
+        } else if (edgeBehavior === "reflect") {
+            // "Bounce" - stay put for now, or go back. 
+            // Going back one step is: -dq, -dr
+            const bounceQ = startCell.coord.q;
+            const bounceR = startCell.coord.r;
+            targetCell = startCell; // Simplest "Bounce off wall"
+            edgeMsg = "(Reflected)";
+        } else {
+            // "stop"
+            targetCell = startCell;
+            edgeMsg = "(Blocked)";
+        }
+    }
+    
+    // Final Safe Check
+    if (!targetCell) targetCell = startCell;
     const moved = targetCell !== startCell;
 
     // 5. Create Message
@@ -184,7 +235,7 @@ export async function handleHexClick(startCell, allCells, dialogApp, hexData, fl
     let msg = `<h3>Hex Flower Navigation</h3>`;
     msg += `<b>Start:</b> ${startCell.emoji} ${startName}<br/>`;
     msg += `<b>Roll:</b> ${total} (${entry.dir})<br/>`;
-    msg += `<b>Result:</b> ${targetCell.emoji} ${targetName} ${moved ? "" : "(Stayed)"}`;
+    msg += `<b>Result:</b> ${targetCell.emoji} ${targetName} ${moved ? "" : "(Stayed)"} ${edgeMsg}`;
 
     ChatMessage.create({
         content: msg,
@@ -200,46 +251,26 @@ export async function handleHexClick(startCell, allCells, dialogApp, hexData, fl
     await game.user.setFlag(FLAG_SCOPE, FLAG_STATE, allStates);
 
     // 8. Visual Update
-    // Support both Dialog (app.element) and SidebarTab (app.element is already the jquery object usually)
     const $el = dialogApp.element || $(dialogApp); 
     if ($el && $el.length) {
-        const newSVG = generateHexSVG(hexData, targetCell.coord);
+        const newSVG = generateHexSVG({ cells: allCells }, targetCell.coord);
+        
+        // Re-inject and Re-bind (simplest way to update state)
+        // Ideally we would separate "Render" from "Listeners", but reusing the logic in openNavigator is okay.
+        // We will call refresh logic here.
         const $container = $el.find("#hex-flower-container");
         $container.html(newSVG);
-
-        // Re-attach listeners is handled by the initial render wrapper usually?
-        // No, in the original macro it re-attached listeners explicitly.
-        // We need to re-attach listeners here too.
+        $container.append(`<div id="hex-flower-info" class="hex-flower-tooltip" style="display:none;"></div>`); // Re-add tooltip container
         
-        const $tooltip = $el.find("#hex-flower-info");
-        $container.find(".hex-flower-cell").hover(
-            function () {
-                const dataStr = $(this).attr("data-cell");
-                const cell = JSON.parse(dataStr);
-                const name = getCellName(cell);
-                const desc = getCellDescription(cell);
-
-                let info = `<h4>${cell.emoji} ${name}</h4>`;
-                info += `<b>Coord:</b> (${cell.coord.q}, ${cell.coord.r}, ${cell.coord.s})<br/>`;
-
-                if (desc) info += `<i>${desc}</i><br/><hr style="margin:4px 0; border-color:#555;"/>`;
-
-                const exclude = ["bioma", "stage", "title", "name", "encounter_type", "description", "summary", "emoji", "color", "coord", "x", "y"];
-                info += renderProperties(cell, exclude);
-
-                $tooltip.html(info).show();
-            },
-            function () { $tooltip.hide(); }
-        );
-
-        $container.find(".hex-flower-cell").click(async function () {
-            const dataStr = $(this).attr("data-cell");
-            const nextStartCell = JSON.parse(dataStr);
-            await handleHexClick(nextStartCell, hexData.cells, dialogApp, hexData, flowerId);
+        attachListeners($el, allCells, dialogApp, settings, flowerId);
+        
+        // Update "Place Tile" button context to current cell
+        $el.find("#btn-place-tile").off('click').click(() => {
+            activateTilePlacement(targetCell);
         });
     }
 
-    ui.notifications.info(`Rolled ${total} (${entry.dir}) -> ${getCellName(targetCell)}`);
+    ui.notifications.info(`Rolled ${total} (${entry.dir}) -> ${getCellName(targetCell)} ${edgeMsg}`);
 }
 
 async function logToJournal(startCell, rollVal, direction, endCell, flowerId) {
@@ -268,6 +299,7 @@ async function logToJournal(startCell, rollVal, direction, endCell, flowerId) {
     <hr/>
     `;
 
+    // Append to first page or create
     let page = journal.pages.contents[0];
     if (!page) {
         await journal.createEmbeddedDocuments("JournalEntryPage", [{
@@ -282,8 +314,133 @@ async function logToJournal(startCell, rollVal, direction, endCell, flowerId) {
 }
 
 // -------------------------------------------------------------
+// Interactive Tile Placement
+// -------------------------------------------------------------
+function activateTilePlacement(cell) {
+    ui.notifications.info(`Click on the map to place tile for: ${getCellName(cell)} (Right-click to cancel)`);
+    
+    // Ghost Tile Logic
+    // We can't easily make a "Ghost" without a proper PlaceableObject, but we can capture the cursor.
+    // For simplicity: We will just listen for the click.
+    
+    const handler = (event) => {
+        // Transform screen coords to canvas coords
+        const transform = canvas.stage.worldTransform;
+        // In Foundry V12, interaction logic might differ slightly, but standard PIXI interaction:
+        // We use canvas.app.renderer.plugins.interaction.mouse.global usually, or event.data.getLocalPosition
+        
+        // Better: use `canvas.mousePosition`
+        const pos = canvas.mousePosition;
+
+        // Create Tile
+        createTileAt(pos.x, pos.y, cell);
+
+        // Cleanup
+        canvas.stage.off('mousedown', handler);
+        canvas.stage.off('rightdown', cancelHandler);
+        ui.notifications.info("Tile placed.");
+    };
+
+    const cancelHandler = () => {
+        canvas.stage.off('mousedown', handler);
+        canvas.stage.off('rightdown', cancelHandler);
+        ui.notifications.info("Placement cancelled.");
+    };
+
+    // Delay slightly to avoid immediate click registration
+    setTimeout(() => {
+        canvas.stage.on('mousedown', handler);
+        canvas.stage.on('rightdown', cancelHandler);
+    }, 200);
+}
+
+async function createTileAt(x, y, cell) {
+    // Determine Image: Default to a generic hex icon since we don't have dynamic images yet?
+    // User requested "option to place the hex as tile".
+    // If the cell has an image property, use it.
+    
+    // Creating a text tile or a simple shape is hard. We need an image path.
+    // Fallback: 'icons/svg/d20.svg' or check cell.image
+    
+    const imgPath = cell.image || "icons/svg/item-bag.svg"; 
+    
+    const tileData = {
+        x: x - 50, // Center approx
+        y: y - 50,
+        width: 100,
+        height: 100,
+        texture: { src: imgPath }, // V12 syntax might require texture: { src: ... } or just img: ... check API
+    };
+    
+    // V10+ uses `texture: { src: ... }` ? No, standard TileData is `texture: { src }` in V12? 
+    // Let's use generic `img` if older, or map correctly.
+    // Actually `texture: { src: path }` is V10+.
+    
+    // Add Tagger tags
+    const flags = {};
+    if (game.modules.get("tagger")?.active) {
+        flags.tagger = {
+            tags: ["hexflower", `hex-${cell.coord.q}-${cell.coord.r}`, getCellName(cell)]
+        };
+    }
+    
+    // Add Monk's Active Tile Triggers (Basic)
+    if (game.modules.get("monks-active-tiles")?.active) {
+        flags["monks-active-tiles"] = {
+            active: true,
+            record: true,
+            actions: [{
+                action: "notify",
+                data: {
+                    message: `Entered: ${getCellName(cell)}\n${getCellDescription(cell)}`,
+                    type: "info"
+                }
+            }],
+            triggers: [{
+                id: "enter",
+                name: "On Enter"
+            }]
+        };
+    }
+
+    await canvas.scene.createEmbeddedDocuments("Tile", [{
+        ...tileData,
+        flags: flags
+    }]);
+}
+
+// -------------------------------------------------------------
 // 4) Execute / Export
 // -------------------------------------------------------------
+function attachListeners($el, cells, dialogApp, settings, flowerId) {
+    const $tooltip = $el.find("#hex-flower-info");
+
+    $el.find(".hex-flower-cell").hover(
+        function () {
+            const dataStr = $(this).attr("data-cell");
+            const cell = JSON.parse(dataStr);
+            const name = getCellName(cell);
+            const desc = getCellDescription(cell);
+
+            let info = `<h4>${cell.emoji} ${name}</h4>`;
+            info += `<b>Coord:</b> (${cell.coord.q}, ${cell.coord.r}, ${cell.coord.s})<br/>`;
+
+            if (desc) info += `<i>${desc}</i><br/><hr style="margin:4px 0; border-color:#555;"/>`;
+
+            const exclude = ["bioma", "stage", "title", "name", "encounter_type", "description", "summary", "emoji", "color", "coord", "x", "y"];
+            info += renderProperties(cell, exclude);
+
+            $tooltip.html(info).show();
+        },
+        function () { $tooltip.hide(); }
+    );
+
+    $el.find(".hex-flower-cell").click(async function () {
+        const dataStr = $(this).attr("data-cell");
+        const startCell = JSON.parse(dataStr);
+        await handleHexClick(startCell, cells, dialogApp, settings, flowerId);
+    });
+}
 
 export async function openNavigator() {
     const registry = game.user.getFlag(FLAG_SCOPE, FLAG_REGISTRY) || {};
@@ -317,23 +474,26 @@ export async function openNavigator() {
         if (!selectedId) return;
 
         // Load Data & State
-        const flowerData = registry[selectedId].data;
-        const flowerName = registry[selectedId].name;
+        const entry = registry[selectedId];
+        const flowerData = entry.data;
+        const flowerName = entry.name;
+        // Settings/Rules
+        const settings = {
+            navigationRules: entry.navigationRules,
+            edgeBehavior: entry.edgeBehavior
+        };
+
         const allStates = game.user.getFlag(FLAG_SCOPE, FLAG_STATE) || {};
         const savedCoord = allStates[selectedId] || null;
 
         const backBtn = ids.length > 1 ? `<button id="hex-flower-back" style="flex: 0 0 auto; width: auto; margin-right: 5px;"><i class="fas fa-arrow-left"></i></button>` : "";
 
-        // Using inline styles for now as moving them to CSS might break specific Dialog structure if not careful, 
-        // but 'styles/hex-flower.css' has been created.
-        // We will keep structure but rely on classes where possible.
-        // The original logic had inline styles in the content string. 
-        // I'll keep them to minimize risk of breakage during refactor, as requested "prefer minimal refactoring".
-        
+        // UI Content
         const content = `
         <div style="display:flex; align-items:center; margin-bottom: 5px;">
             ${backBtn}
             <h3 style="margin:0;">${flowerName}</h3>
+            <button id="btn-place-tile" style="margin-left:auto; width:auto;" title="Place current Hex as Tile"><i class="fas fa-map-marker-alt"></i></button>
         </div>
         <div style="width: 100%; height: 600px; position: relative; background: #222; overflow: hidden;" id="hex-flower-container">
             ${generateHexSVG(flowerData, savedCoord)}
@@ -354,34 +514,22 @@ export async function openNavigator() {
                     if (newId) runViewer(newId);
                 });
 
-                const $tooltip = html.find("#hex-flower-info");
-
-                html.find(".hex-flower-cell").hover(
-                    function () {
-                        const dataStr = $(this).attr("data-cell");
-                        const cell = JSON.parse(dataStr);
-                        const name = getCellName(cell);
-                        const desc = getCellDescription(cell);
-
-                        let info = `<h4>${cell.emoji} ${name}</h4>`;
-                        info += `<b>Coord:</b> (${cell.coord.q}, ${cell.coord.r}, ${cell.coord.s})<br/>`;
-
-                        if (desc) info += `<i>${desc}</i><br/><hr style="margin:4px 0; border-color:#555;"/>`;
-
-                        const exclude = ["bioma", "stage", "title", "name", "encounter_type", "description", "summary", "emoji", "color", "coord", "x", "y"];
-                        info += renderProperties(cell, exclude);
-
-                        $tooltip.html(info).show();
-                    },
-                    function () { $tooltip.hide(); }
-                );
-
-                html.find(".hex-flower-cell").click(async function () {
-                    const dataStr = $(this).attr("data-cell");
-                    const startCell = JSON.parse(dataStr);
-
-                    await handleHexClick(startCell, flowerData.cells, d, flowerData, selectedId);
+                // Attach Tile Placement (Initial)
+                // Need to find CURRENT cell to place. 
+                // If savedCoord exists, find that cell. Else... we can't place yet? 
+                
+                let currentCell = null;
+                if (savedCoord) {
+                    currentCell = flowerData.cells.find(c => c.coord.q === savedCoord.q && c.coord.r === savedCoord.r);
+                }
+                
+                html.find("#btn-place-tile").click(() => {
+                    if (currentCell) activateTilePlacement(currentCell);
+                    else ui.notifications.warn("No current hex active (navigate once to set start).");
                 });
+
+                // Attach Hex Listeners
+                attachListeners(html, flowerData.cells, d, settings, selectedId);
             }
         }, {
             width: 800,
