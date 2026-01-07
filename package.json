@@ -1,0 +1,22 @@
+{
+  "name": "hexflower-module",
+  "version": "1.0.8",
+  "description": "Hex Flower Engine for Foundry VTT",
+  "main": "dist/module.js",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build"
+  },
+  "keywords": [
+    "foundryvtt",
+    "hexflower"
+  ],
+  "author": "Felipe Alves",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "typescript": "^5.0.0",
+    "@league-of-foundry-developers/foundry-vtt-types": "^9.0.0",
+    "terser": "^5.0.0"
+  }
+}

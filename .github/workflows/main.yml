@@ -22,6 +22,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
       - name: Validate version format
         run: |
           if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
@@ -36,18 +42,19 @@ jobs:
             exit 1
           fi
 
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Project
+        run: npm run build
+
       - name: Update module.json
         run: |
           # Update version
           sed -i 's/"version": "[^"]*"/"version": "${{ inputs.version }}"/' module.json
 
-          # Update download URL to point to the release asset we are about to create
+          # Update download URL
           sed -i 's|"download": "[^"]*"|"download": "https://github.com/${{ github.repository }}/releases/download/v${{ inputs.version }}/module.zip"|' module.json
-
-          # Update manifest URL to point to the specific version release (optional, but good for version locking)
-          # Or keep it pointing to latest? The user's request emphasized "manifest url for zip".
-          # Usually manifest points to latest. I will leave manifest separate or update it if needed.
-          # The reference only updates download. I'll update download only.
 
           # Verify changes
           echo "Updated module.json:"
@@ -67,7 +74,22 @@ jobs:
           git push origin "v${{ inputs.version }}"
 
       - name: Create Zip Archive
-        run: zip -r ./module.zip . -x ".git/*" ".github/*" "task.md" "walkthrough.md" "implementation_plan.md"
+        # Zip the dist folder, styles, templates, etc.
+        # We need to structure the zip so it unzips into the module folder.
+        # Usually Foundry modules zip the CONTENT of the module folder.
+        # But we are building to 'dist'.
+        # We should create a temp directory, copy module.json, dist/, styles/, templates/ lang/ into it, then zip THAT.
+        run: |
+          mkdir package
+          cp module.json package/
+          cp -r dist package/
+          cp -r styles package/
+          cp -r templates package/
+          cp -r languages package/ 2>/dev/null || :
+          cp -r assets package/ 2>/dev/null || :
+          cp README.md package/
+          cd package
+          zip -r ../module.zip .
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
