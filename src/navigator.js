@@ -444,8 +444,41 @@ function attachListeners($el, cells, dialogApp, settings, flowerId) {
 
     $el.find(".hex-flower-cell").click(async function () {
         const dataStr = $(this).attr("data-cell");
-        const startCell = JSON.parse(dataStr);
-        await handleHexClick(startCell, cells, dialogApp, settings, flowerId);
+        const targetCell = JSON.parse(dataStr);
+        
+        // Manual Click -> Teleport Confirmation
+        new Dialog({
+            title: "Confirm Move",
+            content: `<p>Move party to <strong>${getCellName(targetCell)}</strong>?</p>`,
+            buttons: {
+                yes: {
+                    label: "Yes",
+                    callback: async () => {
+                         // Save State, No Roll
+                        const allStates = game.user.getFlag(FLAG_SCOPE, FLAG_STATE) || {};
+                        allStates[flowerId] = targetCell.coord;
+                        await game.user.setFlag(FLAG_SCOPE, FLAG_STATE, allStates);
+                        ui.notifications.info(`Party moved to ${getCellName(targetCell)}.`);
+                        
+                        // Force Refresh
+                        const $btn = $el.find("#btn-roll-nav");
+                        if ($btn.length) $btn.click(); // Hacky refresh re-trigger or better:
+                        
+                        // Better: Re-call openNavigator or extract refresh logic.
+                        // Since we are inside the dialog, we can trigger the same update logic as handleHexClick
+                        // But handleHexClick expects a roll.
+                        // Let's just re-render via simple recurse or finding the container.
+                        
+                        // Quickest way to refresh visual state without full reload:
+                        const newSVG = generateHexSVG({ cells }, targetCell.coord, settings.partyTokenImg);
+                        $el.find("#hex-flower-container").html(newSVG).append(`<div id="hex-flower-info" class="hex-flower-tooltip" style="display:none;"></div>`);
+                        attachListeners($el, cells, dialogApp, settings, flowerId);
+                    }
+                },
+                no: { label: "No" }
+            },
+            default: "yes"
+        }).render(true);
     });
 }
 
@@ -498,9 +531,9 @@ export async function openNavigator() {
 
         // UI Content
         const content = `
-        <div style="display:flex; align-items:center; margin-bottom: 5px;">
             ${backBtn}
             <h3 style="margin:0;">${flowerName}</h3>
+            <button id="btn-roll-nav" style="margin-left:10px;"><i class="fas fa-dice"></i> Roll Navigation</button>
             <button id="btn-place-tile" style="margin-left:auto; width:auto;" title="Place current Hex as Tile"><i class="fas fa-map-marker-alt"></i></button>
         </div>
         <div style="width: 100%; height: 600px; position: relative; background: #222; overflow: hidden;" id="hex-flower-container">
@@ -534,6 +567,30 @@ export async function openNavigator() {
                 html.find("#btn-place-tile").click(() => {
                     if (currentCell) activateTilePlacement(currentCell);
                     else ui.notifications.warn("No current hex active (navigate once to set start).");
+                });
+
+                // Roll Button
+                html.find("#btn-roll-nav").click(async () => {
+                    // Logic: Get current saved coord. If null, ask to start or pick random?
+                    // Let's resolve current state again
+                    const currentStates = game.user.getFlag(FLAG_SCOPE, FLAG_STATE) || {};
+                    const cCoord = currentStates[selectedId];
+                    
+                    let startCell = null;
+                    if (cCoord) {
+                        startCell = flowerData.cells.find(c => c.coord.q === cCoord.q && c.coord.r === cCoord.r);
+                    }
+                    
+                    if (!startCell) {
+                         // Fallback: Pick center (0,0,0) or first
+                         startCell = flowerData.cells.find(c => c.coord.q === 0 && c.coord.r === 0);
+                         if (!startCell) startCell = flowerData.cells[0];
+                         ui.notifications.info("Starting from default/first hex.");
+                    }
+                    
+                    if (startCell) {
+                        await handleHexClick(startCell, flowerData.cells, d, settings, selectedId);
+                    }
                 });
 
                 // Attach Hex Listeners

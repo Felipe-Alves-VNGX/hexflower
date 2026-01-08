@@ -1,6 +1,6 @@
 # Dependencies
 node_modules/
-
+.agent/
 # Build output
 dist/
 
@@ -19,3 +19,5 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+*.txt
