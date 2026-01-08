@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import z from 'zod';
 
 export const HexCoordSchema = z.object({
     q: z.number(),
@@ -28,5 +28,7 @@ export const HexFlowerSchema = z.object({
     name: z.string().optional(),
     cells: z.array(HexCellSchema),
     navigationRules: z.array(RuleSchema).optional(),
-    edgeBehavior: z.enum(["stop", "wrap", "reflect", "loop"]).optional()
+    edgeBehavior: z.enum(["stop", "wrap", "reflect", "loop"]).optional(),
+    activeHex: HexCoordSchema.optional(),
+    partyActorId: z.string().optional()
 });

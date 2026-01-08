@@ -90,7 +90,7 @@ function hexCorners(cx, cy, size) {
 // -------------------------------------------------------------
 // 3) Generator Function
 // -------------------------------------------------------------
-export function generateHexSVG(data, currentCoord) {
+export function generateHexSVG(data, currentCoord, partyTokenImg) {
     const cells = data.cells || [];
     if (!cells.length) return "<p>No Data (Check Manager)</p>";
 
@@ -139,6 +139,7 @@ export function generateHexSVG(data, currentCoord) {
                   font-size="14" style="pointer-events:none;">${cell.emoji || ''}</text>
             <text x="${x}" y="${y + 12}" text-anchor="middle" dominant-baseline="middle" 
                   font-size="8" fill="black" font-weight="bold" style="pointer-events:none;">${name}</text>
+            ${isCurrent && partyTokenImg ? `<image href="${partyTokenImg}" x="${x-15}" y="${y-15}" width="30" height="30" style="pointer-events:none;" />` : ""}
         </g>`;
     });
 
@@ -253,7 +254,7 @@ export async function handleHexClick(startCell, allCells, dialogApp, settings, f
     // 8. Visual Update
     const $el = dialogApp.element || $(dialogApp); 
     if ($el && $el.length) {
-        const newSVG = generateHexSVG({ cells: allCells }, targetCell.coord);
+        const newSVG = generateHexSVG({ cells: allCells }, targetCell.coord, settings.partyTokenImg);
         
         // Re-inject and Re-bind (simplest way to update state)
         // Ideally we would separate "Render" from "Listeners", but reusing the logic in openNavigator is okay.
@@ -486,7 +487,8 @@ export async function openNavigator() {
         // Settings/Rules
         const settings = {
             navigationRules: entry.navigationRules,
-            edgeBehavior: entry.edgeBehavior
+            edgeBehavior: entry.edgeBehavior,
+            partyTokenImg: entry.partyActorId ? game.actors.get(entry.partyActorId)?.prototypeToken.texture.src : null
         };
 
         const allStates = game.user.getFlag(FLAG_SCOPE, FLAG_STATE) || {};
@@ -502,7 +504,7 @@ export async function openNavigator() {
             <button id="btn-place-tile" style="margin-left:auto; width:auto;" title="Place current Hex as Tile"><i class="fas fa-map-marker-alt"></i></button>
         </div>
         <div style="width: 100%; height: 600px; position: relative; background: #222; overflow: hidden;" id="hex-flower-container">
-            ${generateHexSVG(flowerData, savedCoord)}
+            ${generateHexSVG(flowerData, savedCoord, settings.partyTokenImg)}
             <div id="hex-flower-info" class="hex-flower-tooltip" style="display:none;"></div>
         </div>
         `;

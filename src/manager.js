@@ -201,7 +201,8 @@ function showEditDialog(id, registry) {
         name: originalEntry.name || "Unnamed Flower",
         data: originalEntry.data ? JSON.parse(JSON.stringify(originalEntry.data)) : { cells: [] },
         edgeBehavior: originalEntry.edgeBehavior || "stop",
-        navigationRules: originalEntry.navigationRules ? JSON.parse(JSON.stringify(originalEntry.navigationRules)) : JSON.parse(JSON.stringify(DEFAULT_RULES))
+        navigationRules: originalEntry.navigationRules ? JSON.parse(JSON.stringify(originalEntry.navigationRules)) : JSON.parse(JSON.stringify(DEFAULT_RULES)),
+        partyActorId: originalEntry.partyActorId || ""
     };
     
     // Ensure cells exist
@@ -287,6 +288,13 @@ function showEditDialog(id, registry) {
                         <option value="loop" ${draftEntry.edgeBehavior === 'loop' ? 'selected' : ''}>Loop</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Party Actor (Token):</label>
+                    <select id="party-actor" class="hex-input">
+                        <option value="">-- None --</option>
+                        ${game.actors.map(a => `<option value="${a.id}" ${draftEntry.partyActorId === a.id ? 'selected' : ''}>${a.name}</option>`).join("")}
+                    </select>
+                </div>
                 <h4 style="margin-top:10px; border-bottom:1px solid #444;">Navigation Rules (2d6)</h4>
                 <div id="rules-container">${renderRulesTable(draftEntry.navigationRules)}</div>
             </div>
@@ -363,7 +371,8 @@ function showEditDialog(id, registry) {
                         name: draftEntry.name,
                         cells: draftEntry.data.cells,
                         navigationRules: draftEntry.navigationRules,
-                        edgeBehavior: draftEntry.edgeBehavior
+                        edgeBehavior: draftEntry.edgeBehavior,
+                        partyActorId: draftEntry.partyActorId
                     };
 
                     const result = HexFlowerSchema.safeParse(toValidate);
@@ -380,7 +389,8 @@ function showEditDialog(id, registry) {
                         name: draftEntry.name,
                         data: { cells: draftEntry.data.cells },
                         edgeBehavior: draftEntry.edgeBehavior,
-                        navigationRules: draftEntry.navigationRules
+                        navigationRules: draftEntry.navigationRules,
+                        partyActorId: draftEntry.partyActorId
                     };
 
                     await saveRegistry(registry);
@@ -484,6 +494,7 @@ function showEditDialog(id, registry) {
 
                 // Rules Tab
                 html.find("#edge-behavior").change(e => draftEntry.edgeBehavior = e.target.value);
+                html.find("#party-actor").change(e => draftEntry.partyActorId = e.target.value);
                 html.find(".rule-min").change(e => { draftEntry.navigationRules[e.target.dataset.idx].min = parseInt(e.target.value); });
                 html.find(".rule-max").change(e => { draftEntry.navigationRules[e.target.dataset.idx].max = parseInt(e.target.value); });
                 html.find(".rule-dir").change(e => { draftEntry.navigationRules[e.target.dataset.idx].dir = e.target.value; });
@@ -513,7 +524,9 @@ function showEditDialog(id, registry) {
                              else if (parsed.cells) draftEntry.data.cells = parsed.cells;
                              
                              if (parsed.navigationRules) draftEntry.navigationRules = parsed.navigationRules;
+                             if (parsed.navigationRules) draftEntry.navigationRules = parsed.navigationRules;
                              if (parsed.edgeBehavior) draftEntry.edgeBehavior = parsed.edgeBehavior;
+                             if (parsed.partyActorId) draftEntry.partyActorId = parsed.partyActorId;
                              if (parsed.name) draftEntry.name = parsed.name;
                              
                              selectedHexIndex = -1;
