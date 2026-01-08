@@ -2,6 +2,7 @@
  * Hex Flower Manager
  * Use this module to Import, Edit, or Delete Hex Flowers stored in the World.
  */
+import { HexFlowerSchema } from './schema.js';
 
 const FLAG_SCOPE = "world";
 const FLAG_REGISTRY = "hex_flower_registry";
@@ -42,11 +43,9 @@ function hexCorners(cx, cy, size) {
     return points;
 }
 
-function generateMiniSVG(data) {
-    const cells = data.cells || [];
-    if (!cells.length) return `<div style="display:flex; justify-content:center; align-items:center; height:100%; color:#555;">No Cells</div>`;
+function generateManagerSVG(cells, selectedCoord) {
+    if (!cells || !cells.length) return `<div style="display:flex; justify-content:center; align-items:center; height:100%; color:#555;">No Hexes (Add one to start)</div>`;
 
-    // Calc bounds
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     cells.forEach(cell => {
         const { x, y } = cubeToPixel(cell.coord.q, cell.coord.r, HEX_SIZE);
@@ -64,14 +63,22 @@ function generateMiniSVG(data) {
 
     cells.forEach(cell => {
         const { x, y } = cubeToPixel(cell.coord.q, cell.coord.r, HEX_SIZE);
-        // Simplified rendering for preview
+        let name = cell.title || cell.name || "Hex";
+        if (name.length > 8) name = name.substring(0, 6) + "…";
+
+        const isSelected = selectedCoord && cell.coord.q === selectedCoord.q && cell.coord.r === selectedCoord.r;
+        const stroke = isSelected ? "#00FFFF" : "#333";
+        const strokeWidth = isSelected ? 3 : 1;
+        const fill = cell.color || "#ccc";
+        const zIndex = isSelected ? 10 : 1;
+
+        // data-q/r for click detection
         svg += `
-        <g>
+        <g class="manager-hex" data-q="${cell.coord.q}" data-r="${cell.coord.r}" style="cursor: pointer; z-index: ${zIndex}">
             <polygon points="${hexCorners(x, y, HEX_SIZE)}" 
-                     fill="${cell.color || '#cccccc'}" 
-                     stroke="#333" stroke-width="1" />
-            <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" 
-                  font-size="10" style="pointer-events:none;">${cell.emoji || ''}</text>
+                     fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" />
+            <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" 
+                  font-size="8" fill="#000" style="pointer-events:none; font-weight: bold;">${name}</text>
         </g>`;
     });
 
@@ -182,220 +189,334 @@ const DEFAULT_RULES = [
     { min: 2, max: 2, dir: "NW" }
 ];
 
+// -------------------------------------------------------------
+// Visual Editor Dialog
+// -------------------------------------------------------------
 function showEditDialog(id, registry) {
     const isNew = !id;
-    const entry = isNew ? { name: "", data: { cells: [] } } : registry[id];
+    const originalEntry = isNew ? { name: "", data: { cells: [] } } : registry[id];
+
+    // Local Draft State
+    let draftEntry = {
+        name: originalEntry.name || "Unnamed Flower",
+        data: originalEntry.data ? JSON.parse(JSON.stringify(originalEntry.data)) : { cells: [] },
+        edgeBehavior: originalEntry.edgeBehavior || "stop",
+        navigationRules: originalEntry.navigationRules ? JSON.parse(JSON.stringify(originalEntry.navigationRules)) : JSON.parse(JSON.stringify(DEFAULT_RULES))
+    };
     
-    // Default values if missing
-    if (!entry.edgeBehavior) entry.edgeBehavior = "stop";
-    if (!entry.navigationRules) entry.navigationRules = JSON.parse(JSON.stringify(DEFAULT_RULES));
+    // Ensure cells exist
+    if (!draftEntry.data.cells) draftEntry.data.cells = [];
 
-    const jsonString = JSON.stringify(entry.data, null, 2);
+    // UI State
+    let selectedHexIndex = draftEntry.data.cells.length > 0 ? 0 : -1;
 
-    // Helpers to render rules rows
-    const renderRulesRows = (rules) => {
-        return rules.map((r, i) => `
-            <tr class="rule-row">
-                <td><input type="number" class="hex-input-small rule-min" value="${r.min}" style="width:40px"></td>
-                <td style="text-align:center;">-</td>
-                <td><input type="number" class="hex-input-small rule-max" value="${r.max}" style="width:40px"></td>
-                <td>
-                    <select class="hex-input-small rule-dir">
-                        ${Object.keys(DIRECTION_PRESETS).map(d => `<option value="${d}" ${r.dir === d ? 'selected' : ''}>${d}</option>`).join('')}
-                    </select>
-                </td>
-                <td><button type="button" class="hex-btn danger btn-del-rule"><i class="fas fa-trash"></i></button></td>
-            </tr>
-        `).join('');
+    // Helper: Find first available neighbor or spot
+    const findNewHexCoord = () => {
+        if (draftEntry.data.cells.length === 0) return { q: 0, r: 0, s: 0 };
+        
+        // Try to find a free neighbor of the selected hex (or last hex)
+        const baseIndex = selectedHexIndex >= 0 ? selectedHexIndex : draftEntry.data.cells.length - 1;
+        const base = draftEntry.data.cells[baseIndex].coord;
+        
+        const neighbors = [
+            {q:0, r:-1, s:1}, {q:1, r:-1, s:0}, {q:1, r:0, s:-1},
+            {q:0, r:1, s:-1}, {q:-1, r:1, s:0}, {q:-1, r:0, s:1}
+        ];
+        
+        for (let n of neighbors) {
+            const tryQ = base.q + n.q;
+            const tryR = base.r + n.r;
+            const exists = draftEntry.data.cells.some(c => c.coord.q === tryQ && c.coord.r === tryR);
+            if (!exists) return { q: tryQ, r: tryR, s: -tryQ-tryR };
+        }
+        return null; // All neighbors taken? Should search spiral. For now, random far one?
     };
 
-    const content = `
-    <style>
-        .hex-tabs { display: flex; border-bottom: 1px solid #444; margin-bottom: 10px; }
-        .hex-tab { padding: 8px 15px; cursor: pointer; background: #222; border: 1px solid transparent; border-bottom: none; color: #ccc; }
-        .hex-tab.active { background: #444; color: #fff; border-color: #555; font-weight: bold; }
-        .hex-tab-content { display: none; height: 100%; overflow-y: auto; }
-        .hex-tab-content.active { display: block; }
-        .hex-input-small { background: #333; color: #fff; border: 1px solid #555; padding: 3px; border-radius: 3px; }
-    </style>
+    const renderRulesTable = (rules) => {
+        let rows = rules.map((r, i) => `
+            <tr>
+                   <td><input type="number" class="rule-min hex-input-small" data-idx="${i}" value="${r.min}" style="width:40px"></td>
+                   <td><input type="number" class="rule-max hex-input-small" data-idx="${i}" value="${r.max}" style="width:40px"></td>
+                   <td>
+                       <select class="rule-dir hex-input-small" data-idx="${i}">
+                           ${Object.keys(DIRECTION_PRESETS).map(d => `<option value="${d}" ${r.dir === d ? "selected":""}>${d}</option>`).join("")}
+                       </select>
+                   </td>
+                   <td><button class="rule-del hex-btn danger" data-idx="${i}"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `).join("");
+        return `<table style="width:100%; border-collapse:collapse;">
+                    <thead><tr style="text-align:left; color:#888;"><th>Min</th><th>Max</th><th>Dir</th><th></th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+                <button id="add-rule" class="hex-btn"><i class="fas fa-plus"></i> Add Rule</button>`;
+    };
+    
+    // Main Render Function
+    const getDialogContent = () => {
+        const selectedCell = selectedHexIndex >= 0 ? draftEntry.data.cells[selectedHexIndex] : null;
 
-    <div class="hex-edit-layout" style="flex-direction: column;">
-        
-        <div style="margin-bottom: 10px; display:flex; align-items:center; gap: 10px;">
-            <label class="hex-label" style="min-width: 80px;">Name:</label>
-            <input type="text" class="hex-input" name="name" value="${entry.name}" placeholder="e.g. My Weather Engine" style="flex:1;"/>
-        </div>
-
-        <div class="hex-tabs">
-            <div class="hex-tab active" data-tab="data">Data (JSON)</div>
-            <div class="hex-tab" data-tab="settings">Navigation Rules</div>
-        </div>
-
-        <div style="flex: 1; display:flex; overflow: hidden; min-height: 400px;">
-            
-            <!-- TAB: DATA -->
-            <div class="hex-tab-content active" id="tab-data" style="width:100%;">
-                <div style="display: flex; height: 100%; gap: 10px;">
-                    <!-- JSON Input -->
-                    <div style="flex:1; display:flex; flex-direction:column;">
-                        <textarea class="hex-input" id="hex-json-input" name="json" style="flex:1; font-family: monospace;">${jsonString}</textarea>
-                        <p style="font-size:10px; color:#777; margin: 3px 0 0 0;">Paste complete JSON (must have "cells" array).</p>
-                    </div>
-                    
-                    <!-- Preview -->
-                    <div class="hex-edit-right" style="flex:1; border-left: 1px solid #444; padding-left: 10px;">
-                        <div class="hex-preview-header">Preview</div>
-                        <div class="hex-preview-content" id="hex-preview-container"></div>
-                    </div>
+        // Props Panel
+        let propsHtml = `<div class="hex-empty-props">Select a Hex to edit properties</div>`;
+        if (selectedCell) {
+            propsHtml = `
+            <div class="props-form">
+                <div class="form-group"><label>Title</label><input type="text" id="prop-title" class="hex-input" value="${selectedCell.title || ''}"/></div>
+                <div class="form-group"><label>Desc</label><textarea id="prop-desc" class="hex-input" rows="2">${selectedCell.description || ''}</textarea></div>
+                <div class="form-group"><label>Type</label><input type="text" id="prop-type" class="hex-input" placeholder="e.g. Swamp" value="${selectedCell.bioma || ''}"/></div>
+                <div class="form-group"><label>Subtitle</label><input type="text" id="prop-name" class="hex-input" placeholder="Name/Subtitle" value="${selectedCell.name || ''}"/></div>
+                <div class="form-group"><label>Color</label><input type="color" id="prop-color" value="${selectedCell.color || '#cccccc'}" style="width:100%; height:30px; border:none;"/></div>
+                <div class="form-group"><label>Icon/Emoji</label><input type="text" id="prop-emoji" class="hex-input" value="${selectedCell.emoji || ''}"/></div>
+                <div class="form-group" style="display:flex; justify-content:space-between; color:#777; font-size:0.8em; padding-top:5px;">
+                    <span>Q: ${selectedCell.coord.q}</span>
+                    <span>R: ${selectedCell.coord.r}</span>
+                    <button id="btn-del-hex" class="hex-btn danger small"><i class="fas fa-trash"></i> Delete</button>
                 </div>
             </div>
+            `;
+        }
 
-            <!-- TAB: SETTINGS -->
-            <div class="hex-tab-content" id="tab-settings" style="width:100%; padding: 5px;">
-                
-                <div style="margin-bottom: 20px;">
-                    <label class="hex-label">Edge Behavior</label>
-                    <select id="edge-behavior" class="hex-input" style="width: 200px;">
-                        <option value="stop" ${entry.edgeBehavior === 'stop' ? 'selected' : ''}>Stop (Stay in place)</option>
-                        <option value="wrap" ${entry.edgeBehavior === 'wrap' ? 'selected' : ''}>Wrap (Teleport to opposite)</option>
-                        <option value="reflect" ${entry.edgeBehavior === 'reflect' ? 'selected' : ''}>Reflect (Bounce back)</option>
-                        <option value="loop" ${entry.edgeBehavior === 'loop' ? 'selected' : ''}>Loop (Connect edges)</option>
+        const navRulesHtml = `
+            <div style="padding:10px;">
+                <div class="form-group">
+                    <label>Edge Behavior:</label>
+                    <select id="edge-behavior" class="hex-input">
+                        <option value="stop" ${draftEntry.edgeBehavior === 'stop' ? 'selected' : ''}>Stop</option>
+                        <option value="wrap" ${draftEntry.edgeBehavior === 'wrap' ? 'selected' : ''}>Wrap</option>
+                        <option value="reflect" ${draftEntry.edgeBehavior === 'reflect' ? 'selected' : ''}>Reflect</option>
+                        <option value="loop" ${draftEntry.edgeBehavior === 'loop' ? 'selected' : ''}>Loop</option>
                     </select>
-                    <p class="notes">What happens when a roll tries to move off the map?</p>
                 </div>
+                <h4 style="margin-top:10px; border-bottom:1px solid #444;">Navigation Rules (2d6)</h4>
+                <div id="rules-container">${renderRulesTable(draftEntry.navigationRules)}</div>
+            </div>
+        `;
 
-                <label class="hex-label">Navigation Rules (2d6 Standard)</label>
-                <div style="max-height: 300px; overflow-y: auto; background: #222; padding: 5px; border: 1px solid #444;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align:left; color:#888;">
-                                <th>Min</th><th></th><th>Max</th><th>Direction</th><th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="rules-tbody">
-                            ${renderRulesRows(entry.navigationRules)}
-                        </tbody>
-                    </table>
-                    <button type="button" id="btn-add-rule" class="hex-btn" style="margin-top: 5px; font-size: 0.8em;"><i class="fas fa-plus"></i> Add Rule</button>
+        const jsonHtml = `
+            <div style="display:flex; flex-direction:column; height:100%; padding:10px;">
+                <textarea id="full-json" style="flex:1; width:100%; font-family:monospace; background:#111; color:#0f0; border:1px solid #444;">${JSON.stringify({ data: draftEntry.data, navigationRules: draftEntry.navigationRules, edgeBehavior: draftEntry.edgeBehavior }, null, 2)}</textarea>
+                <div style="margin-top:5px; display:flex; gap:5px;">
+                    <button id="btn-import-json" class="hex-btn hex-btn-main"><i class="fas fa-file-import"></i> Parse & Apply JSON</button>
+                    <button id="btn-copy-json" class="hex-btn"><i class="fas fa-copy"></i> Copy to Clipboard</button>
                 </div>
+            </div>
+        `;
 
+        return `
+        <div class="hex-editor-container" style="height: 650px; display:flex; flex-direction:column;">
+            <div style="display:flex; align-items:center; gap:10px; padding-bottom:10px; border-bottom:1px solid #444;">
+                 <label>Name:</label>
+                 <input type="text" class="hex-input" id="flower-name" value="${draftEntry.name}" style="flex:1;"/>
             </div>
 
+            <nav class="sheet-tabs tabs" data-group="primary" style="margin-top:5px;">
+                <a class="item" data-tab="visual"><i class="fas fa-th"></i> Visual Editor</a>
+                <a class="item" data-tab="rules"><i class="fas fa-balance-scale"></i> Rules</a>
+                <a class="item" data-tab="json"><i class="fas fa-code"></i> Data (JSON)</a>
+            </nav>
+
+            <section class="content" style="flex:1; overflow:hidden; position:relative;">
+                <!-- VISUAL TAB -->
+                <div class="tab" data-tab="visual" style="height:100%; display:flex; gap:10px; padding-top:10px;">
+                    <!-- Left: Grid -->
+                    <div class="hex-grid-pane" style="flex:1; display:flex; flex-direction:column;">
+                        <div class="toolbar" style="margin-bottom:5px;">
+                            <button id="btn-add-hex" class="hex-btn"><i class="fas fa-plus"></i> Add Hex</button>
+                        </div>
+                        <div class="svg-container" style="flex:1; background: #222; border-radius: 4px; overflow: hidden; border:1px solid #333;">
+                            ${generateManagerSVG(draftEntry.data.cells, selectedCell ? selectedCell.coord : null)}
+                        </div>
+                    </div>
+                    <!-- Right: Props -->
+                    <div class="hex-props-pane" style="width: 250px; background: #1a1a1a; padding: 10px; border-left: 1px solid #444;">
+                        ${propsHtml}
+                    </div>
+                </div>
+
+                <!-- RULES TAB -->
+                <div class="tab" data-tab="rules" style="height:100%; overflow-y:auto;">
+                    ${navRulesHtml}
+                </div>
+
+                <!-- JSON TAB -->
+                <div class="tab" data-tab="json" style="height:100%;">
+                    ${jsonHtml}
+                </div>
+            </section>
         </div>
-    </div>
-    `;
+        `;
+    };
 
     const d = new Dialog({
-        title: isNew ? "Import Hex Flower" : "Edit Hex Flower",
-        content: content,
+        title: isNew ? "Create Hex Flower" : `Edit: ${originalEntry.name}`,
+        content: "<div class='hex-loading'>Loading Editor...</div>", // Dynamic fill
         buttons: {
             save: {
                 label: "<i class='fas fa-save'></i> Save",
-                callback: async (html) => {
-                    const name = html.find('[name="name"]').val();
-                    const jsonRaw = html.find('[name="json"]').val();
-                    
-                    // Capture Settings
-                    const edgeBehavior = html.find('#edge-behavior').val();
-                    const rules = [];
-                    html.find('.rule-row').each((i, el) => {
-                        const min = parseInt($(el).find('.rule-min').val());
-                        const max = parseInt($(el).find('.rule-max').val());
-                        const dir = $(el).find('.rule-dir').val();
-                        if (!isNaN(min) && !isNaN(max) && dir) {
-                            rules.push({ min, max, dir });
-                        }
-                    });
+                callback: async () => {
+                    // Validation
+                    // Note: draftEntry structure is: { name, data: {cells}, edgeBehavior, navigationRules }
+                    // Schema checks specific fields. We construct the object to validate.
+                    const toValidate = {
+                        version: "1.0.0",
+                        name: draftEntry.name,
+                        cells: draftEntry.data.cells,
+                        navigationRules: draftEntry.navigationRules,
+                        edgeBehavior: draftEntry.edgeBehavior
+                    };
 
-                    try {
-                        const parsedData = JSON.parse(jsonRaw);
-                        if (!parsedData.cells || !Array.isArray(parsedData.cells)) {
-                            return ui.notifications.error("Invalid JSON: Root must contain a 'cells' array.");
-                        }
-
-                        // Save
-                        const newId = id || generateId();
-                        registry[newId] = {
-                            name: name || "Unnamed Flower",
-                            data: parsedData,
-                            edgeBehavior: edgeBehavior,
-                            navigationRules: rules
-                        };
-
-                        await saveRegistry(registry);
-                        ui.notifications.info(`Saved "${registry[newId].name}".`);
-
-                        // Re-open manager
-                        Object.values(ui.windows).forEach(w => w.close());
-                        openManager();
-
-                    } catch (e) {
-                        ui.notifications.error("JSON Parse Error: " + e.message);
-                        console.error(e);
+                    const result = HexFlowerSchema.safeParse(toValidate);
+                    if (!result.success) {
+                        console.error(result.error);
+                        // Formatting error message
+                        const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+                        ui.notifications.error("Validation Failed: " + errors);
+                        throw new Error("Validation Failed");
                     }
-                }
-            },
-            cancel: {
-                label: "<i class='fas fa-arrow-left'></i> Back",
-                callback: () => {
-                    Object.values(ui.windows).forEach(w => w.close());
+
+                    // Save
+                    const saveId = id || generateId();
+                    registry[saveId] = {
+                        name: draftEntry.name,
+                        data: { cells: draftEntry.data.cells }, // Keeping structure clean
+                        edgeBehavior: draftEntry.edgeBehavior,
+                        navigationRules: draftEntry.navigationRules
+                    };
+
+                    await saveRegistry(registry);
+                    ui.notifications.info(`Saved ${draftEntry.name}`);
+                    Object.values(ui.windows).forEach(w => { if(w !== d && w.title === "Hex Flower Manager") w.close(); });
                     openManager();
                 }
-            }
+            },
+            cancel: { label: "Cancel" }
         },
         render: (html) => {
             html.closest(".app").addClass("hex-flower-dialog");
 
-            // TABS LOGIC
-            html.find('.hex-tab').click(ev => {
-                const target = $(ev.currentTarget).data('tab');
-                html.find('.hex-tab').removeClass('active');
-                $(ev.currentTarget).addClass('active');
-                html.find('.hex-tab-content').removeClass('active');
-                html.find(`#tab-${target}`).addClass('active');
-            });
-
-            // RULES LOGIC
-            const $tbody = html.find('#rules-tbody');
-            html.find('#btn-add-rule').click(() => {
-                $tbody.append(`
-                    <tr class="rule-row">
-                        <td><input type="number" class="hex-input-small rule-min" value="0" style="width:40px"></td>
-                        <td style="text-align:center;">-</td>
-                        <td><input type="number" class="hex-input-small rule-max" value="0" style="width:40px"></td>
-                        <td>
-                            <select class="hex-input-small rule-dir">
-                                ${Object.keys(DIRECTION_PRESETS).map(d => `<option value="${d}">${d}</option>`).join('')}
-                            </select>
-                        </td>
-                        <td><button type="button" class="hex-btn danger btn-del-rule"><i class="fas fa-trash"></i></button></td>
-                    </tr>
-                `);
-            });
-
-            html.on('click', '.btn-del-rule', (ev) => {
-                $(ev.currentTarget).closest('tr').remove();
-            });
-
-            // DATA PREVIEW LOGIC
-            const $textarea = html.find("#hex-json-input");
-            const $preview = html.find("#hex-preview-container");
-
-            const updatePreview = () => {
-                const raw = $textarea.val();
-                try {
-                    const data = JSON.parse(raw);
-                    const svg = generateMiniSVG(data);
-                    $preview.html(svg);
-                } catch (e) {
-                    $preview.html(`<div style="display:flex; justify-content:center; align-items:center; height:100%; color:#d44;">Invalid JSON</div>`);
+            // Main Re-renderer
+            const refresh = () => {
+                // Re-generate HTML
+                const $container = html.find('.hex-editor-container');
+                if ($container.length) {
+                    // Update pieces to avoid Tab reset or full re-render
+                    // Actually, re-rendering inner content is easiest, but we must preserve tab selection.
+                    const activeTab = html.find('.sheet-tabs .item.active').data('tab') || 'visual';
+                    
+                    // Brute force replace content, then restore tab
+                    html.find(".dialog-content").html(getDialogContent());
+                    
+                    // Restore tab
+                    // Re-bind tabs
+                    const tabs = new Tabs({navSelector: ".tabs", contentSelector: ".content", initial: activeTab, callback: () => {}});
+                    tabs.bind(html[0]);
+                    html.find(`.sheet-tabs .item[data-tab="${activeTab}"]`).addClass('active');
+                    html.find(`.tab[data-tab="${activeTab}"]`).addClass('active');
+                } else {
+                    // First load
+                    html.find(".dialog-content").html(getDialogContent());
+                    const tabs = new Tabs({navSelector: ".tabs", contentSelector: ".content", initial: "visual", callback: () => {}});
+                    tabs.bind(html[0]);
                 }
+                bindListeners();
             };
 
-            updatePreview();
-            $textarea.on("input", updatePreview);
-        }
-    }, { width: 900, height: 740, resizable: true });
+            const bindListeners = () => {
+                // Name
+                html.find("#flower-name").on("change", e => draftEntry.name = e.target.value);
 
+                // Visual: Add Hex
+                html.find("#btn-add-hex").click(() => {
+                    const newCoord = findNewHexCoord();
+                    if (newCoord) {
+                        draftEntry.data.cells.push({ coord: newCoord, title: "New Hex" });
+                        selectedHexIndex = draftEntry.data.cells.length - 1;
+                        refresh();
+                    } else {
+                        ui.notifications.warn("Could not find a free spot nearby.");
+                    }
+                });
+
+                // Visual: Hex Selection
+                html.find(".manager-hex").click(e => {
+                    const q = parseInt(e.currentTarget.dataset.q);
+                    const r = parseInt(e.currentTarget.dataset.r);
+                    selectedHexIndex = draftEntry.data.cells.findIndex(c => c.coord.q === q && c.coord.r === r);
+                    refresh();
+                });
+
+                // Visual: Props
+                if (selectedHexIndex >= 0) {
+                    const updateProp = (field, val) => {
+                        draftEntry.data.cells[selectedHexIndex][field] = val;
+                        // Don't full refresh on text input lost focus, maybe just visual?
+                        // For simplicity, we refresh on change.
+                        // Ideally we update draft and only refresh SVG if needed.
+                        refresh(); 
+                    };
+                    html.find("#prop-title").change(e => updateProp('title', e.target.value));
+                    html.find("#prop-desc").change(e => { draftEntry.data.cells[selectedHexIndex].description = e.target.value; }); // No refresh needed visually
+                    html.find("#prop-type").change(e => updateProp('bioma', e.target.value));
+                    html.find("#prop-name").change(e => updateProp('name', e.target.value));
+                    html.find("#prop-color").change(e => updateProp('color', e.target.value));
+                    html.find("#prop-emoji").change(e => updateProp('emoji', e.target.value)); // Refresh for label
+                    
+                    html.find("#btn-del-hex").click(() => {
+                        draftEntry.data.cells.splice(selectedHexIndex, 1);
+                        selectedHexIndex = -1;
+                        refresh();
+                    });
+                }
+
+                // Rules Tab
+                html.find("#edge-behavior").change(e => draftEntry.edgeBehavior = e.target.value);
+                html.find(".rule-min").change(e => { draftEntry.navigationRules[e.target.dataset.idx].min = parseInt(e.target.value); });
+                html.find(".rule-max").change(e => { draftEntry.navigationRules[e.target.dataset.idx].max = parseInt(e.target.value); });
+                html.find(".rule-dir").change(e => { draftEntry.navigationRules[e.target.dataset.idx].dir = e.target.value; });
+                html.find(".rule-del").click(e => {
+                    draftEntry.navigationRules.splice(e.currentTarget.dataset.idx, 1);
+                    refresh();
+                });
+                html.find("#add-rule").click(() => {
+                    draftEntry.navigationRules.push({ min:0, max:0, dir:"SAME" });
+                    refresh();
+                });
+
+                // JSON Tab
+                html.find("#btn-copy-json").click(() => {
+                    const val = html.find("#full-json").val();
+                    // Copy to clipboard
+                    // Navigator clipboard api requires https or localhost usually
+                    navigator.clipboard.writeText(val).then(() => ui.notifications.info("Copied to clipboard"));
+                });
+                html.find("#btn-import-json").click(() => {
+                    try {
+                        const raw = html.find("#full-json").val();
+                        const parsed = JSON.parse(raw);
+                        // Handle structure variations
+                        if (parsed.cells || parsed.data?.cells) {
+                             if (parsed.data && parsed.data.cells) draftEntry.data = parsed.data;
+                             else if (parsed.cells) draftEntry.data.cells = parsed.cells;
+                             
+                             if (parsed.navigationRules) draftEntry.navigationRules = parsed.navigationRules;
+                             if (parsed.edgeBehavior) draftEntry.edgeBehavior = parsed.edgeBehavior;
+                             if (parsed.name) draftEntry.name = parsed.name;
+                             
+                             selectedHexIndex = -1;
+                             ui.notifications.info("Imported JSON data!");
+                             refresh();
+                        } else {
+                            ui.notifications.warn("JSON must contain 'cells' or 'data.cells'");
+                        }
+                    } catch(e) {
+                        ui.notifications.error("JSON Parse Error");
+                    }
+                });
+            };
+
+            refresh();
+        }
+    }, { width: 950, height: 750, resizable: true });
+    
     d.render(true);
 }

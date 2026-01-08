@@ -423,11 +423,17 @@ function attachListeners($el, cells, dialogApp, settings, flowerId) {
             const desc = getCellDescription(cell);
 
             let info = `<h4>${cell.emoji} ${name}</h4>`;
+            
+            // Image Support
+            if (cell.image) {
+                info += `<img src="${cell.image}" style="max-width:100%; border-radius:4px; margin-bottom:8px; border:1px solid #444;">`;
+            }
+
             info += `<b>Coord:</b> (${cell.coord.q}, ${cell.coord.r}, ${cell.coord.s})<br/>`;
 
-            if (desc) info += `<i>${desc}</i><br/><hr style="margin:4px 0; border-color:#555;"/>`;
+            if (desc) info += `<div class="hex-desc">${desc}</div><hr style="margin:4px 0; border-color:#555;"/>`;
 
-            const exclude = ["bioma", "stage", "title", "name", "encounter_type", "description", "summary", "emoji", "color", "coord", "x", "y"];
+            const exclude = ["bioma", "stage", "title", "name", "encounter_type", "description", "summary", "emoji", "color", "coord", "x", "y", "image"];
             info += renderProperties(cell, exclude);
 
             $tooltip.html(info).show();

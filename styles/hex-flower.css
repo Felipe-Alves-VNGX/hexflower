@@ -1,181 +1,242 @@
-/* Hex Flower Manager & Navigator Styles */
+/* -------------------------------------------------------------------------
+ * Hex Flower Engine - Premium Dark Theme
+ * ------------------------------------------------------------------------- */
 
-/* Dialog Window Override (if needed) */
+/* Import Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto+Slab:wght@300;400;700&display=swap");
+
+:root {
+  --hex-bg-dark: #121212;
+  --hex-bg-panel: #1e1e1e;
+  --hex-text-main: #f0f0f0;
+  --hex-text-dim: #a0a0a0;
+  --hex-accent: #00e6cc; /* Cyan Accent */
+  --hex-accent-glow: rgba(0, 230, 204, 0.4);
+  --hex-border: #444;
+  --hex-glass: rgba(30, 30, 30, 0.85);
+
+  --font-heading: "Cinzel", serif;
+  --font-body: "Roboto Slab", serif;
+}
+
+/* Dialog Window Styling */
 .hex-flower-dialog .window-content {
-  background: #1a1a1a;
-  color: #e0e0e0;
-  padding: 0;
+  background: var(--hex-bg-dark) !important;
+  background-image: radial-gradient(
+      circle at 50% 0%,
+      #2a2a2a 0%,
+      transparent 70%
+    ),
+    url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%231a1a1a' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E") !important; /* Subtle texture */
+  color: var(--hex-text-main) !important;
+  padding: 0 !important;
+  border: 1px solid var(--hex-border);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+.hex-flower-dialog .window-header {
+  background: var(--hex-bg-panel);
+  border-bottom: 1px solid var(--hex-border);
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.hex-flower-dialog .window-title {
+  text-shadow: 0 0 5px var(--hex-accent-glow);
 }
 
 /* Manager Container */
-.hex-manager-container {
+.hex-editor-container {
   padding: 10px;
+  height: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-body);
 }
 
-/* Manager Table */
-.hex-manager-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #252525;
-  border-radius: 4px;
-  overflow: hidden;
+/* Tabs */
+.sheet-tabs {
+  border-bottom: 1px solid var(--hex-border);
+  margin-bottom: 10px;
 }
 
-.hex-manager-table th {
-  text-align: left;
-  padding: 8px 10px;
-  background: #333;
-  color: #fff;
-  font-weight: 600;
-  border-bottom: 2px solid #444;
-}
-
-.hex-manager-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #333;
-}
-
-.hex-manager-table tr:last-child td {
+.sheet-tabs .item {
+  font-family: var(--font-heading);
+  font-weight: bold;
+  color: var(--hex-text-dim);
+  padding: 8px 15px;
+  border: 1px solid transparent;
   border-bottom: none;
+  transition: all 0.3s ease;
 }
 
-.hex-manager-table tr:hover {
-  background: #2a2a2a;
+.sheet-tabs .item:hover {
+  color: var(--hex-accent);
+  text-shadow: 0 0 8px var(--hex-accent-glow);
+}
+
+.sheet-tabs .item.active {
+  color: var(--hex-accent);
+  border-bottom: 2px solid var(--hex-accent);
+  text-shadow: 0 0 10px var(--hex-accent-glow);
+}
+
+/* Inputs & Forms */
+.hex-input,
+.hex-input-small {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--hex-border);
+  color: var(--hex-text-main);
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.hex-input:focus,
+.hex-input-small:focus {
+  border-color: var(--hex-accent);
+  box-shadow: 0 0 5px var(--hex-accent-glow);
+  outline: none;
+}
+
+label.hex-label {
+  font-family: var(--font-heading);
+  font-size: 0.9em;
+  color: var(--hex-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Buttons */
 .hex-btn {
-  background: #333;
-  border: 1px solid #444;
-  color: #eee;
+  background: linear-gradient(135deg, #333 0%, #222 100%);
+  border: 1px solid var(--hex-border);
+  color: var(--hex-text-main);
+  padding: 6px 12px;
+  border-radius: 4px;
   cursor: pointer;
-  border-radius: 3px;
-  padding: 2px 8px;
-  transition: all 0.2s;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-heading);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
 }
 
 .hex-btn:hover {
-  background: #444;
-  border-color: #555;
-  color: #fff;
+  background: linear-gradient(135deg, #444 0%, #333 100%);
+  border-color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.hex-btn.danger:hover {
-  background: #5a1e1e;
-  border-color: #ff5555;
-}
-
-.hex-btn i {
-  margin-right: 0;
+.hex-btn:active {
+  transform: translateY(0);
 }
 
 .hex-btn-main {
-  width: 100%;
-  padding: 8px;
-  margin-top: 10px;
-  background: #2d4666;
-  border: 1px solid #486a99;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 230, 204, 0.2) 0%,
+    rgba(0, 150, 130, 0.2) 100%
+  );
+  border-color: var(--hex-accent);
+  color: var(--hex-accent);
 }
 
 .hex-btn-main:hover {
-  background: #3a5a82;
+  background: var(--hex-accent);
+  color: #000;
+  box-shadow: 0 0 15px var(--hex-accent-glow);
 }
 
-/* Edit Dialog Layout */
-.hex-edit-layout {
-  display: flex;
-  gap: 10px;
-  height: 600px;
-  padding: 10px;
+.hex-btn.danger {
+  background: rgba(200, 50, 50, 0.2);
+  border-color: #d44;
+  color: #ffaaaa;
 }
 
-.hex-edit-left {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.hex-btn.danger:hover {
+  background: #d44;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(200, 50, 50, 0.6);
 }
 
-.hex-edit-right {
-  flex: 1;
-  background: #252525;
-  border: 1px solid #333;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
+/* SVG / Grid Container */
+.svg-container {
+  background: #0a0a0a !important;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
+  border: 1px solid #333 !important;
 }
 
-.hex-preview-header {
-  padding: 5px 10px;
-  background: #333;
+/* Hexagons in Manager */
+.manager-hex:hover polygon {
+  stroke: var(--hex-accent);
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 5px var(--hex-accent));
+}
+
+.hex-flower-tooltip table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 5px;
+    font-size: 0.9em;
+}
+.hex-flower-tooltip th, .hex-flower-tooltip td {
+    padding: 3px;
+    border: 1px solid #555;
+    text-align: left;
+}
+.hex-flower-tooltip th {
+    background: rgba(255,255,255,0.1);
+}
+.hex-desc {
+    font-style: italic;
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+.manager-hex:hover text {
+  fill: #fff;
   font-weight: bold;
-  border-bottom: 1px solid #444;
 }
 
-.hex-preview-content {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
+/* Property Panel */
+.hex-props-pane {
+  background: rgba(30, 30, 30, 0.6) !important;
+  backdrop-filter: blur(10px);
+  border-left: 1px solid var(--hex-border) !important;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
 }
 
-/* Form Elements */
-input.hex-input,
-textarea.hex-input {
-  background: #222;
-  border: 1px solid #444;
-  color: #ddd;
-  padding: 5px;
-  border-radius: 3px;
-  width: 100%;
-  box-sizing: border-box;
+.form-group {
+  margin-bottom: 12px;
 }
 
-input.hex-input:focus,
-textarea.hex-input:focus {
-  border-color: #6699ff;
-  outline: none;
+.hex-empty-props {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--hex-text-dim);
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
 }
 
-textarea.hex-input {
-  flex: 1;
-  font-family: "Consolas", "Monaco", monospace;
-  font-size: 11px;
-  resize: none;
-  margin-top: 5px;
+/* Scrollbars */
+.hex-flower-dialog ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-
-label.hex-label {
-  font-weight: bold;
-  color: #bbb;
-  display: block;
-  margin-bottom: 3px;
+.hex-flower-dialog ::-webkit-scrollbar-track {
+  background: #111;
 }
-
-/* Navigator Specifics */
-.hex-flower-tooltip {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background: rgba(0, 0, 0, 0.9);
-  color: white;
-  padding: 10px;
+.hex-flower-dialog ::-webkit-scrollbar-thumb {
+  background: #444;
   border-radius: 4px;
-  font-size: 13px;
-  max-width: 300px;
-  pointer-events: none;
-  z-index: 1000;
-  border: 1px solid #444;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
-
-.hex-flower-tooltip h4 {
-  margin: 0 0 5px 0;
-  border-bottom: 1px solid #777;
-  padding-bottom: 3px;
-}
-
-.hex-flower-cell:hover polygon {
-  stroke: white;
-  stroke-width: 3;
+.hex-flower-dialog ::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
