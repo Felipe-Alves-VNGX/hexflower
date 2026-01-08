@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.17] - 2026-01-08
+
+### Added
+
+- **Phase 4: Gameplay Integration**
+  - **Token Integration**: Ability to assign a "Party Actor" to the Hex Flower. The token physically appears in the Viewer on the current hex.
+  - **Roll Button**: Added a dedicated "Roll Navigation" button in the Viewer to trigger standard navigation from the current party location.
+  - **Manual Move Confirmation**: Clicking a hex in the Viewer now prompts a confirmation dialog ("Move here?") instead of immediately rolling, allowing for manual adjustments/teleportation.
+
 ## [1.0.11] - 2026-01-07
 
 ### Added
