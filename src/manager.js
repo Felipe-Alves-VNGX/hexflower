@@ -349,14 +349,12 @@ function showEditDialog(id, registry) {
 
     const d = new Dialog({
         title: isNew ? "Create Hex Flower" : `Edit: ${originalEntry.name}`,
-        content: "<div class='hex-loading'>Loading Editor...</div>", // Dynamic fill
+        content: "<div id='hex-loader' class='hex-loading'>Loading Editor...</div>", // Dynamic fill
         buttons: {
             save: {
                 label: "<i class='fas fa-save'></i> Save",
                 callback: async () => {
                     // Validation
-                    // Note: draftEntry structure is: { name, data: {cells}, edgeBehavior, navigationRules }
-                    // Schema checks specific fields. We construct the object to validate.
                     const toValidate = {
                         version: "1.0.0",
                         name: draftEntry.name,
@@ -368,7 +366,6 @@ function showEditDialog(id, registry) {
                     const result = HexFlowerSchema.safeParse(toValidate);
                     if (!result.success) {
                         console.error(result.error);
-                        // Formatting error message
                         const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
                         ui.notifications.error("Validation Failed: " + errors);
                         throw new Error("Validation Failed");
@@ -378,7 +375,7 @@ function showEditDialog(id, registry) {
                     const saveId = id || generateId();
                     registry[saveId] = {
                         name: draftEntry.name,
-                        data: { cells: draftEntry.data.cells }, // Keeping structure clean
+                        data: { cells: draftEntry.data.cells },
                         edgeBehavior: draftEntry.edgeBehavior,
                         navigationRules: draftEntry.navigationRules
                     };
@@ -396,28 +393,30 @@ function showEditDialog(id, registry) {
 
             // Main Re-renderer
             const refresh = () => {
-                // Re-generate HTML
-                const $container = html.find('.hex-editor-container');
-                if ($container.length) {
-                    // Update pieces to avoid Tab reset or full re-render
-                    // Actually, re-rendering inner content is easiest, but we must preserve tab selection.
-                    const activeTab = html.find('.sheet-tabs .item.active').data('tab') || 'visual';
-                    
-                    // Brute force replace content, then restore tab
-                    html.find(".dialog-content").html(getDialogContent());
-                    
-                    // Restore tab
-                    // Re-bind tabs
-                    const tabs = new Tabs({navSelector: ".tabs", contentSelector: ".content", initial: activeTab, callback: () => {}});
-                    tabs.bind(html[0]);
-                    html.find(`.sheet-tabs .item[data-tab="${activeTab}"]`).addClass('active');
-                    html.find(`.tab[data-tab="${activeTab}"]`).addClass('active');
-                } else {
-                    // First load
-                    html.find(".dialog-content").html(getDialogContent());
-                    const tabs = new Tabs({navSelector: ".tabs", contentSelector: ".content", initial: "visual", callback: () => {}});
-                    tabs.bind(html[0]);
+                const newContent = getDialogContent();
+                
+                // If we have the loader, replace it
+                if (html.find("#hex-loader").length) {
+                    html.html(newContent);
+                } 
+                // If we have the container, replace it
+                else if (html.find(".hex-editor-container").length) {
+                    html.html(newContent);
                 }
+                // Fallback (e.g. unexpected state), just set html
+                else {
+                     html.html(newContent);
+                }
+
+                // Re-bind Tabs
+                const activeTab = html.find('.sheet-tabs .item.active').data('tab') || 'visual';
+                const tabs = new Tabs({navSelector: ".tabs", contentSelector: ".content", initial: activeTab, callback: () => {}});
+                tabs.bind(html[0]); // Bind to the new content root
+                
+                // Restore Tab State if needed (Tabs class handles hidden content, but we need to ensure active class is set)
+                html.find(`.sheet-tabs .item[data-tab="${activeTab}"]`).addClass('active');
+                html.find(`.tab[data-tab="${activeTab}"]`).addClass('active');
+
                 bindListeners();
             };
 
