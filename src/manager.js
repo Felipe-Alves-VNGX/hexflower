@@ -393,34 +393,45 @@ function showEditDialog(id, registry) {
 
             // Main Re-renderer
             const refresh = () => {
+                // Capture current state before nuking DOM
+                const activeTab = html.find('.sheet-tabs .item.active').data('tab') || 'visual';
+
                 const newContent = getDialogContent();
                 
-                // If we have the loader, replace it
+                // Replace content
                 if (html.find("#hex-loader").length) {
                     html.html(newContent);
-                } 
-                // If we have the container, replace it
-                else if (html.find(".hex-editor-container").length) {
+                } else if (html.find(".hex-editor-container").length) {
                     html.html(newContent);
-                }
-                // Fallback (e.g. unexpected state), just set html
-                else {
+                } else {
                      html.html(newContent);
                 }
 
-                // Re-bind Tabs
-                const activeTab = html.find('.sheet-tabs .item.active').data('tab') || 'visual';
-                const tabs = new Tabs({navSelector: ".tabs", contentSelector: ".content", initial: activeTab, callback: () => {}});
-                tabs.bind(html[0]); // Bind to the new content root
-                
-                // Restore Tab State if needed (Tabs class handles hidden content, but we need to ensure active class is set)
+                // Initialize Tabs Manually
+                // 1. Set Active Classes
+                html.find('.sheet-tabs .item').removeClass('active');
                 html.find(`.sheet-tabs .item[data-tab="${activeTab}"]`).addClass('active');
-                html.find(`.tab[data-tab="${activeTab}"]`).addClass('active');
+                
+                html.find('.tab').removeClass('active').hide();
+                html.find(`.tab[data-tab="${activeTab}"]`).addClass('active').show();
 
                 bindListeners();
             };
 
             const bindListeners = () => {
+                // Manual Tab Switching
+                html.find('.sheet-tabs .item').click(ev => {
+                    ev.preventDefault();
+                    const targetTab = ev.currentTarget.dataset.tab;
+
+                    // UI Updates
+                    html.find('.sheet-tabs .item').removeClass('active');
+                    $(ev.currentTarget).addClass('active');
+
+                    html.find('.tab').removeClass('active').hide();
+                    html.find(`.tab[data-tab="${targetTab}"]`).addClass('active').show();
+                });
+
                 // Name
                 html.find("#flower-name").on("change", e => draftEntry.name = e.target.value);
 
