@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.18] - 2026-01-08
+
+### Fixed
+
+- **UI Regression**: Fixed `Hex Flower Viewer` layout breakage where the hex grid was rendered too small due to a missing container tag after adding the Roll button.
+
 ## [1.0.17] - 2026-01-08
 
 ### Added

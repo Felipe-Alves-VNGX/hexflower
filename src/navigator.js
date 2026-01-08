@@ -531,6 +531,7 @@ export async function openNavigator() {
 
         // UI Content
         const content = `
+        <div style="display:flex; align-items:center; margin-bottom: 5px;">
             ${backBtn}
             <h3 style="margin:0;">${flowerName}</h3>
             <button id="btn-roll-nav" style="margin-left:10px;"><i class="fas fa-dice"></i> Roll Navigation</button>
