@@ -347,9 +347,12 @@ function showEditDialog(id, registry) {
         `;
     };
 
+    // Unique ID for this editor instance to avoid DOM conflicts
+    const editorWrapperId = `hex-editor-${generateId()}`;
+
     const d = new Dialog({
         title: isNew ? "Create Hex Flower" : `Edit: ${originalEntry.name}`,
-        content: "<div id='hex-loader' class='hex-loading'>Loading Editor...</div>", // Dynamic fill
+        content: `<div id="${editorWrapperId}" class="hex-editor-wrapper" style="height:100%;">Loading Editor...</div>`,
         buttons: {
             save: {
                 label: "<i class='fas fa-save'></i> Save",
@@ -393,18 +396,17 @@ function showEditDialog(id, registry) {
 
             // Main Re-renderer
             const refresh = () => {
-                // Capture current state before nuking DOM
+                // Capture current state
                 const activeTab = html.find('.sheet-tabs .item.active').data('tab') || 'visual';
-
                 const newContent = getDialogContent();
                 
-                // Replace content
-                if (html.find("#hex-loader").length) {
-                    html.html(newContent);
-                } else if (html.find(".hex-editor-container").length) {
-                    html.html(newContent);
+                // Target the specific wrapper to avoid any ambiguity
+                const wrapper = html.find(`#${editorWrapperId}`);
+                if (wrapper.length) {
+                    wrapper.html(newContent);
                 } else {
-                     html.html(newContent);
+                    // Fallback should rarely happen if ID is correct
+                    html.html(newContent);
                 }
 
                 // Initialize Tabs Manually
@@ -422,14 +424,16 @@ function showEditDialog(id, registry) {
                 // Manual Tab Switching
                 html.find('.sheet-tabs .item').click(ev => {
                     ev.preventDefault();
+                    // Scope to this specific dialog to prevent cross-talk
+                    const container = $(ev.currentTarget).closest(`#${editorWrapperId}`);
                     const targetTab = ev.currentTarget.dataset.tab;
 
                     // UI Updates
-                    html.find('.sheet-tabs .item').removeClass('active');
+                    container.find('.sheet-tabs .item').removeClass('active');
                     $(ev.currentTarget).addClass('active');
 
-                    html.find('.tab').removeClass('active').hide();
-                    html.find(`.tab[data-tab="${targetTab}"]`).addClass('active').show();
+                    container.find('.tab').removeClass('active').hide();
+                    container.find(`.tab[data-tab="${targetTab}"]`).addClass('active').show();
                 });
 
                 // Name
