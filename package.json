@@ -1,6 +1,6 @@
 {
   "name": "hexflower-module",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Hex Flower Engine for Foundry VTT",
   "main": "dist/module.mjs",
   "scripts": {
