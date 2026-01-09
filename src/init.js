@@ -1,30 +1,5 @@
-import { openManager } from "./manager.js";
-import { openNavigator } from "./navigator.js";
-
-/**
- * Validates that basic Foundry VTT globals exist.
- */
-
-class HexFlowerManagerShim extends FormApplication {
-    /** @override */
-    static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
-            id: "hex-flower-manager-shim",
-            title: "Hex Flower Manager",
-            template: "modules/hexflower/templates/empty.html", // Placeholder
-            width: 450,
-            height: "auto",
-        });
-    }
-
-    /** @override */
-    render(force, options) {
-        // Delegate to the existing Dialog logic
-        openManager();
-        // Return this to satisfy the caller, but we don't open a standard FormApp window
-        return this;
-    }
-}
+import { HexFlowerManager } from "./apps/manager.js";
+import { HexFlowerNavigator } from "./apps/navigator.js";
 
 Hooks.on("init", () => {
     // Register Settings Menu
@@ -33,18 +8,20 @@ Hooks.on("init", () => {
         label: "Open Manager",
         hint: "Create, import, and delete Hex Flowers.",
         icon: "fas fa-seedling",
-        type: HexFlowerManagerShim,
+        type: HexFlowerManager,
         restricted: true
     });
 
     // Expose API
     game.hexFlower = {
-        openManager,
-        openNavigator
+        HexFlowerManager,
+        HexFlowerNavigator,
+        openManager: () => new HexFlowerManager().render(true),
+        openNavigator: () => new HexFlowerNavigator().render(true)
     };
     
     // Log
-    console.log("Hex Flower Engine | Initialized");
+    console.log("Hex Flower Engine | Initialized (v1.1.0-beta.1)");
 });
 
 

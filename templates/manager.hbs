@@ -1,0 +1,46 @@
+<div class="hex-manager-container">
+  <table class="hex-manager-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th style="text-align:center;">Size</th>
+        <th style="text-align:right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#if flowers.length}}
+        {{#each flowers}}
+          <tr>
+            <td><strong>{{this.name}}</strong></td>
+            <td style="text-align: center;">{{this.cellCount}} hexes</td>
+            <td style="text-align: right;">
+              <button
+                class="hex-btn edit-flower"
+                data-action="edit"
+                data-id="{{this.id}}"
+                title="Edit"
+              ><i class="fas fa-edit"></i></button>
+              <button
+                class="hex-btn danger delete-flower"
+                data-action="delete"
+                data-id="{{this.id}}"
+                title="Delete"
+              ><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        {{/each}}
+      {{else}}
+        <tr><td
+            colspan="3"
+            style="text-align:center; padding: 20px; color:#777;"
+          >No Hex Flowers found.<br />Click Import to start!</td></tr>
+      {{/if}}
+    </tbody>
+  </table>
+  <div style="margin-top: 10px;">
+    <button class="hex-btn hex-btn-main" data-action="create"><i
+        class="fas fa-file-import"
+      ></i>
+      Create / Import New Flower</button>
+  </div>
+</div>

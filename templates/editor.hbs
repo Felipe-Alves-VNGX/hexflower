@@ -1,0 +1,103 @@
+<div class="hex-editor-container standard-form" style="height: 100%; display: flex; flex-direction: column;">
+    <div style="display:flex; align-items:center; gap:10px; padding-bottom:10px; border-bottom:1px solid #444; flex: 0 0 auto;">
+         <label>Name:</label>
+         <input type="text" class="hex-input" name="name" value="{{name}}" style="flex:1;"/>
+    </div>
+
+    <!-- Tabs are handled by ApplicationV2 automatically if configured, or manually -->
+    <nav class="sheet-tabs tabs" data-group="main">
+        <a class="item" data-tab="visual"><i class="fas fa-th"></i> Visual Editor</a>
+        <a class="item" data-tab="rules"><i class="fas fa-balance-scale"></i> Rules</a>
+        <a class="item" data-tab="json"><i class="fas fa-code"></i> Data (JSON)</a>
+    </nav>
+
+    <div class="content" style="flex:1; overflow:hidden; position:relative;">
+        
+        <!-- VISUAL TAB -->
+        <div class="tab" data-tab="visual" data-group="main" style="height:100%; display:flex; gap:10px; padding-top:10px;">
+            <div class="hex-grid-pane" style="flex:1; display:flex; flex-direction:column;">
+                <div class="toolbar" style="margin-bottom:5px;">
+                    <button type="button" class="hex-btn" data-action="addHex"><i class="fas fa-plus"></i> Add Hex</button>
+                </div>
+                <!-- SVG Container -->
+                <div class="svg-container" style="flex:1; background: #222; border-radius: 4px; overflow: hidden; border:1px solid #333; position: relative;">
+                    {{{svg}}}
+                </div>
+            </div>
+            
+            <!-- Props Pane -->
+            <div class="hex-props-pane" style="width: 250px; background: #1a1a1a; padding: 10px; border-left: 1px solid #444; overflow-y: auto;">
+                {{#if selectedCell}}
+                <div class="props-form">
+                    <div class="form-group"><label>Title</label><input type="text" class="hex-input" data-prop="title" value="{{selectedCell.title}}"/></div>
+                    <div class="form-group"><label>Desc</label><textarea class="hex-input" data-prop="description" rows="2">{{selectedCell.description}}</textarea></div>
+                    <div class="form-group"><label>Type</label><input type="text" class="hex-input" data-prop="bioma" placeholder="e.g. Swamp" value="{{selectedCell.bioma}}"/></div>
+                    <div class="form-group"><label>Subtitle</label><input type="text" class="hex-input" data-prop="name" placeholder="Name/Subtitle" value="{{selectedCell.name}}"/></div>
+                    <div class="form-group"><label>Color</label><input type="color" data-prop="color" value="{{selectedCell.color}}" style="width:100%; height:30px; border:none;"/></div>
+                    <div class="form-group"><label>Icon/Emoji</label><input type="text" class="hex-input" data-prop="emoji" value="{{selectedCell.emoji}}"/></div>
+                    
+                    <div class="form-group" style="display:flex; justify-content:space-between; color:#777; font-size:0.8em; padding-top:5px;">
+                        <span>Q: {{selectedCell.coord.q}}</span>
+                        <span>R: {{selectedCell.coord.r}}</span>
+                        <button type="button" class="hex-btn danger small" data-action="deleteHex"><i class="fas fa-trash"></i> Delete</button>
+                    </div>
+                </div>
+                {{else}}
+                <div class="hex-empty-props">Select a Hex to edit properties</div>
+                {{/if}}
+            </div>
+        </div>
+
+        <!-- RULES TAB -->
+        <div class="tab" data-tab="rules" data-group="main" style="height:100%; overflow-y:auto; padding: 10px;">
+            <div class="form-group">
+                <label>Edge Behavior:</label>
+                <select name="edgeBehavior" class="hex-input">
+                    {{selectOptions edgeBehaviorOptions selected=edgeBehavior}}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Party Actor (Token):</label>
+                <select name="partyActorId" class="hex-input">
+                    <option value="">-- None --</option>
+                    {{selectOptions actorOptions selected=partyActorId}}
+                </select>
+            </div>
+            
+            <h4 style="margin-top:10px; border-bottom:1px solid #444;">Navigation Rules (2d6)</h4>
+            <table style="width:100%; border-collapse:collapse;">
+                <thead><tr style="text-align:left; color:#888;"><th>Min</th><th>Max</th><th>Dir</th><th></th></tr></thead>
+                <tbody>
+                    {{#each navigationRules}}
+                    <tr>
+                        <td><input type="number" class="rule-min hex-input-small" data-idx="{{@index}}" data-key="min" value="{{this.min}}" style="width:40px"></td>
+                        <td><input type="number" class="rule-max hex-input-small" data-idx="{{@index}}" data-key="max" value="{{this.max}}" style="width:40px"></td>
+                        <td>
+                            <select class="rule-dir hex-input-small" data-idx="{{@index}}" data-key="dir">
+                                {{selectOptions ../directionOptions selected=this.dir}}
+                            </select>
+                        </td>
+                        <td><button type="button" class="rule-del hex-btn danger" data-idx="{{@index}}" data-action="deleteRule"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            <button type="button" class="hex-btn" data-action="addRule" style="margin-top:5px;"><i class="fas fa-plus"></i> Add Rule</button>
+        </div>
+
+        <!-- JSON TAB -->
+        <div class="tab" data-tab="json" data-group="main" style="height:100%;">
+            <div style="display:flex; flex-direction:column; height:100%; padding:10px;">
+                <textarea name="jsonInput" style="flex:1; width:100%; font-family:monospace; background:#111; color:#0f0; border:1px solid #444;">{{jsonString}}</textarea>
+                <div style="margin-top:5px; display:flex; gap:5px; flex: 0 0 auto;">
+                    <button type="button" class="hex-btn hex-btn-main" data-action="parseJson"><i class="fas fa-file-import"></i> Parse & Apply JSON</button>
+                    <button type="button" class="hex-btn" data-action="copyJson"><i class="fas fa-copy"></i> Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="flex: 0 0 auto; padding-top: 10px; border-top: 1px solid #444; display:flex; justify-content: flex-end; gap: 5px;">
+        <button type="submit" class="hex-btn hex-btn-main"><i class="fas fa-save"></i> Save Flower</button>
+    </div>
+</div>

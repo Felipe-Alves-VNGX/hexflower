@@ -25,3 +25,8 @@ description: Automate the release process: create branch, push, trigger GitHub A
 9. Cleanup branches.
    - `git branch -d chore/release-auto`
    - `git push origin --delete chore/release-auto`
+10. commit new module.json
+
+- `git add .`
+- `git commit -m "Release v<VERSION>"`
+- `git push origin main`

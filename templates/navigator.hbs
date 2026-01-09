@@ -1,0 +1,15 @@
+<div class="hex-navigator-container" style="height: 100%; display: flex; flex-direction: column;">
+    <div class="header" style="display:flex; align-items:center; margin-bottom: 5px; flex: 0 0 auto;">
+        {{#if hasMultiple}}
+        <button type="button" data-action="back" style="flex: 0 0 auto; width: auto; margin-right: 5px;" title="Back to Selection"><i class="fas fa-arrow-left"></i></button>
+        {{/if}}
+        <h3 style="margin:0; flex: 1;">{{title}}</h3>
+        <button type="button" data-action="roll" style="margin-left:10px; width: auto;"><i class="fas fa-dice"></i> Roll Navigation</button>
+        <button type="button" data-action="placeTile" style="margin-left:5px; width:auto;" title="Place current Hex as Tile"><i class="fas fa-map-marker-alt"></i></button>
+    </div>
+    
+    <div style="flex: 1; position: relative; background: #222; overflow: hidden; border: 1px solid #333;" id="hex-flower-container">
+        {{{svg}}}
+        <div id="hex-flower-info" class="hex-flower-tooltip" style="display:none;"></div>
+    </div>
+</div>
