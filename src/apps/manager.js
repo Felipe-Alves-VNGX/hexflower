@@ -177,29 +177,36 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     _onRender(context, options) {
         super._onRender(context, options);
 
-        // Tab Handling
+        // Tab Handling - DOM based to avoid full re-render
         const activeTab = this.state.activeTab;
-        this.element.querySelectorAll(".sheet-tabs .item").forEach(el => {
-            const tab = el.dataset.tab;
-            if (tab === activeTab) el.classList.add("active");
-            else el.classList.remove("active");
+        
+        // function to update visibility
+        const updateTabs = (tabId) => {
+            this.state.activeTab = tabId;
+            this.element.querySelectorAll(".sheet-tabs .item").forEach(el => {
+                el.classList.toggle("active", el.dataset.tab === tabId);
+            });
+            this.element.querySelectorAll(".tab").forEach(el => {
+                const isActive = el.dataset.tab === tabId;
+                el.classList.toggle("active", isActive);
+                // Specific display types: Visual needs flex, others block
+                if (isActive) {
+                    el.style.display = (tabId === 'visual') ? "flex" : "block";
+                } else {
+                    el.style.display = "none";
+                }
+            });
+        };
 
+        // Initialize state
+        updateTabs(activeTab);
+
+        // Listeners
+        this.element.querySelectorAll(".sheet-tabs .item").forEach(el => {
             el.addEventListener("click", ev => {
                 ev.preventDefault();
-                this.state.activeTab = tab;
-                this.render(); // Simple re-render to update view logic (or specific DOM manip for speed)
-                // For speed/UX, we could just toggle display, but re-render ensures consistency with other actions.
+                updateTabs(el.dataset.tab);
             });
-        });
-
-        this.element.querySelectorAll(".tab").forEach(el => {
-            if (el.dataset.tab === activeTab) {
-                el.classList.add("active");
-                el.style.display = (el.dataset.tab === 'visual') ? "flex" : "block"; // Preserve flex for visual
-            } else {
-                el.classList.remove("active");
-                el.style.display = "none";
-            }
         });
 
         // Bind Hex Clicks
@@ -209,7 +216,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
                 const r = parseInt(ev.currentTarget.dataset.r);
                 const idx = this.state.draft.data.cells.findIndex(c => c.coord.q === q && c.coord.r === r);
                 this.state.selectedHexIndex = idx;
-                this.render();
+                this.render(); // Selection change requires re-render for props panel
             });
         });
 
