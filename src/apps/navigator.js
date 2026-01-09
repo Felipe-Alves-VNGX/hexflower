@@ -200,31 +200,31 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
         
         // 4. Resolve Target (Edge Behavior)
         const cells = entry.data.cells;
-        let target = cells.find(c => c.coord.q === nextQ && c.coord.r === nextR);
+        let targetCell = cells.find(c => c.coord.q === nextQ && c.coord.r === nextR);
         let note = "";
 
-        if (!target) {
+        if (!targetCell) {
             // Edge Behavior
             const strategy = entry.edgeBehavior || "stop";
             if (strategy === "stop") {
-                target = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
+                targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
                 note = "(Blocked)";
             } else if (strategy === "wrap") {
                 // Antipodal? or simple wrap? user code had antipodal.
-                target = cells.find(c => c.coord.q === -nextQ && c.coord.r === -nextR);
+                targetCell = cells.find(c => c.coord.q === -nextQ && c.coord.r === -nextR);
                 note = "(Wrapped)";
-                if (!target) target = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r); // Fallback
+                if (!targetCell) targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r); // Fallback
             }
         }
         
-        if (!target) return; // Should not happen if defaults exist
+        if (!targetCell) return; // Should not happen if defaults exist
         
         // 5. Update
-        await this._updateState(target.coord);
+        await this._updateState(targetCell.coord);
         
         // 6. Chat
         ChatMessage.create({
-            content: `<b>Hex Flower Navigation</b><br>Rolled ${total} (${dir})<br>Moved to: ${target.title || 'Hex'} ${note}`
+            content: `<b>Hex Flower Navigation</b><br>Rolled ${total} (${dir})<br>Moved to: ${targetCell.title || 'Hex'} ${note}`
         });
     }
     
