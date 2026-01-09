@@ -176,17 +176,25 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
     _onRender(context, options) {
         super._onRender(context, options);
+        console.log("HexFlowerEditor | _onRender", this.element);
 
         // Tab Handling - DOM based to avoid full re-render
         const activeTab = this.state.activeTab;
+        console.log("HexFlowerEditor | Active Tab State:", activeTab);
         
         // function to update visibility
         const updateTabs = (tabId) => {
+            console.log("HexFlowerEditor | Updating Tabs to:", tabId);
             this.state.activeTab = tabId;
-            this.element.querySelectorAll(".sheet-tabs .item").forEach(el => {
+            const tabNavs = this.element.querySelectorAll(".sheet-tabs .item");
+            const tabContents = this.element.querySelectorAll(".tab");
+            
+            console.log(`HexFlowerEditor | Found ${tabNavs.length} nav items and ${tabContents.length} content tabs`);
+
+            tabNavs.forEach(el => {
                 el.classList.toggle("active", el.dataset.tab === tabId);
             });
-            this.element.querySelectorAll(".tab").forEach(el => {
+            tabContents.forEach(el => {
                 const isActive = el.dataset.tab === tabId;
                 el.classList.toggle("active", isActive);
                 // Specific display types: Visual needs flex, others block
@@ -202,8 +210,12 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
         updateTabs(activeTab);
 
         // Listeners
-        this.element.querySelectorAll(".sheet-tabs .item").forEach(el => {
+        const navItems = this.element.querySelectorAll(".sheet-tabs .item");
+        if (navItems.length === 0) console.warn("HexFlowerEditor | No tab nav items found with selector .sheet-tabs .item");
+        
+        navItems.forEach(el => {
             el.addEventListener("click", ev => {
+                console.log("HexFlowerEditor | Clicked Tab:", el.dataset.tab);
                 ev.preventDefault();
                 updateTabs(el.dataset.tab);
             });
