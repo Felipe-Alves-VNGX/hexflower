@@ -68,7 +68,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
         this.document = null; // We are not bound to a document
         
         // Initial State
-        this.state = {
+        this.editorState = {
             draft: null,
             selectedHexIndex: -1,
             activeTab: "visual",
@@ -108,12 +108,12 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
     async _prepareContext(options) {
         // Load data if not loaded or if hard reset needed
-        if (!this.state.draft) {
+        if (!this.editorState.draft) {
              const registry = getRegistry();
              if (this.flowerId && registry[this.flowerId]) {
                  const original = registry[this.flowerId];
                  // Deep copy
-                 this.state.draft = {
+                 this.editorState.draft = {
                      name: original.name || "Unnamed",
                      data: original.data ? JSON.parse(JSON.stringify(original.data)) : { cells: [] },
                      edgeBehavior: original.edgeBehavior || "stop",
@@ -121,7 +121,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
                      partyActorId: original.partyActorId || ""
                  };
              } else {
-                 this.state.draft = {
+                 this.editorState.draft = {
                      name: "New Hex Flower",
                      data: { cells: [] },
                      edgeBehavior: "stop",
@@ -129,8 +129,8 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
                      partyActorId: ""
                  };
                  // Add defaults
-                 if (this.state.draft.navigationRules.length === 0) {
-                     this.state.draft.navigationRules = [
+                 if (this.editorState.draft.navigationRules.length === 0) {
+                     this.editorState.draft.navigationRules = [
                         { min: 12, max: 12, dir: "N" },
                         { min: 10, max: 11, dir: "NE" },
                         { min: 8, max: 9, dir: "SE" },
@@ -143,8 +143,8 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
              }
         }
 
-        const draft = this.state.draft;
-        const selectedCell = this.state.selectedHexIndex >= 0 ? draft.data.cells[this.state.selectedHexIndex] : null;
+        const draft = this.editorState.draft;
+        const selectedCell = this.editorState.selectedHexIndex >= 0 ? draft.data.cells[this.editorState.selectedHexIndex] : null;
 
         // Generate SVG
         const svg = generateSVG(draft.data.cells, {
@@ -170,27 +170,22 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
             actorOptions,
             directionOptions,
             edgeBehaviorOptions,
-            activeTab: this.state.activeTab
+            activeTab: this.editorState.activeTab
         };
     }
 
     _onRender(context, options) {
         super._onRender(context, options);
-        console.log("HexFlowerEditor | _onRender", this.element);
 
         // Tab Handling - DOM based to avoid full re-render
-        const activeTab = this.state.activeTab;
-        console.log("HexFlowerEditor | Active Tab State:", activeTab);
+        const activeTab = this.editorState.activeTab;
         
         // function to update visibility
         const updateTabs = (tabId) => {
-            console.log("HexFlowerEditor | Updating Tabs to:", tabId);
-            this.state.activeTab = tabId;
+            this.editorState.activeTab = tabId;
             const tabNavs = this.element.querySelectorAll(".sheet-tabs .item");
             const tabContents = this.element.querySelectorAll(".tab");
             
-            console.log(`HexFlowerEditor | Found ${tabNavs.length} nav items and ${tabContents.length} content tabs`);
-
             tabNavs.forEach(el => {
                 el.classList.toggle("active", el.dataset.tab === tabId);
             });
@@ -211,11 +206,9 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
         // Listeners
         const navItems = this.element.querySelectorAll(".sheet-tabs .item");
-        if (navItems.length === 0) console.warn("HexFlowerEditor | No tab nav items found with selector .sheet-tabs .item");
         
         navItems.forEach(el => {
             el.addEventListener("click", ev => {
-                console.log("HexFlowerEditor | Clicked Tab:", el.dataset.tab);
                 ev.preventDefault();
                 updateTabs(el.dataset.tab);
             });
@@ -226,8 +219,8 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
             el.addEventListener("click", ev => {
                 const q = parseInt(ev.currentTarget.dataset.q);
                 const r = parseInt(ev.currentTarget.dataset.r);
-                const idx = this.state.draft.data.cells.findIndex(c => c.coord.q === q && c.coord.r === r);
-                this.state.selectedHexIndex = idx;
+                const idx = this.editorState.draft.data.cells.findIndex(c => c.coord.q === q && c.coord.r === r);
+                this.editorState.selectedHexIndex = idx;
                 this.render(); // Selection change requires re-render for props panel
             });
         });
@@ -247,8 +240,8 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
         if (target.closest(".props-form")) {
             // Updating Cell Prop
-            if (this.state.selectedHexIndex >= 0) {
-                const cell = this.state.draft.data.cells[this.state.selectedHexIndex];
+            if (this.editorState.selectedHexIndex >= 0) {
+                const cell = this.editorState.draft.data.cells[this.editorState.selectedHexIndex];
                 if (cell) {
                     cell[field] = val;
                     // If visual prop, trigger re-render
