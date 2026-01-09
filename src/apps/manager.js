@@ -71,6 +71,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
         this.state = {
             draft: null,
             selectedHexIndex: -1,
+            activeTab: "visual",
             svg: ""
         }
     }
@@ -168,12 +169,39 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
             jsonString: JSON.stringify({ data: draft.data, navigationRules: draft.navigationRules, edgeBehavior: draft.edgeBehavior }, null, 2),
             actorOptions,
             directionOptions,
-            edgeBehaviorOptions
+            edgeBehaviorOptions,
+            activeTab: this.state.activeTab
         };
     }
 
     _onRender(context, options) {
         super._onRender(context, options);
+
+        // Tab Handling
+        const activeTab = this.state.activeTab;
+        this.element.querySelectorAll(".sheet-tabs .item").forEach(el => {
+            const tab = el.dataset.tab;
+            if (tab === activeTab) el.classList.add("active");
+            else el.classList.remove("active");
+
+            el.addEventListener("click", ev => {
+                ev.preventDefault();
+                this.state.activeTab = tab;
+                this.render(); // Simple re-render to update view logic (or specific DOM manip for speed)
+                // For speed/UX, we could just toggle display, but re-render ensures consistency with other actions.
+            });
+        });
+
+        this.element.querySelectorAll(".tab").forEach(el => {
+            if (el.dataset.tab === activeTab) {
+                el.classList.add("active");
+                el.style.display = (el.dataset.tab === 'visual') ? "flex" : "block"; // Preserve flex for visual
+            } else {
+                el.classList.remove("active");
+                el.style.display = "none";
+            }
+        });
+
         // Bind Hex Clicks
         this.element.querySelectorAll(".hex-cell").forEach(el => {
             el.addEventListener("click", ev => {
@@ -185,13 +213,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
             });
         });
 
-        // Bind Prop Inputs Changes manually (to avoid full form submission or losing focus on every keypress if we used strict reactivity)
-        // But since we use render(), we lose focus.
-        // We will read form data on render, or update draft on changes.
-        // Handling input focus with frequent re-renders is tricky.
-        // Strategy: Only re-render on ACTIONS or Selection change. 
-        // For inputs, we listen to 'change' and update state silently without re-render, unless it affects visual (like color).
-        
+        // Bind Prop Inputs Changes manually
         const inputs = this.element.querySelectorAll(".hex-input, input[type='color']");
         inputs.forEach(input => {
             input.addEventListener("change", ev => {

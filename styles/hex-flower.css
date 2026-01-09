@@ -178,23 +178,24 @@ label.hex-label {
 }
 
 .hex-flower-tooltip table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 5px;
-    font-size: 0.9em;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 5px;
+  font-size: 0.9em;
 }
-.hex-flower-tooltip th, .hex-flower-tooltip td {
-    padding: 3px;
-    border: 1px solid #555;
-    text-align: left;
+.hex-flower-tooltip th,
+.hex-flower-tooltip td {
+  padding: 3px;
+  border: 1px solid #555;
+  text-align: left;
 }
 .hex-flower-tooltip th {
-    background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 .hex-desc {
-    font-style: italic;
-    margin-bottom: 5px;
-    line-height: 1.4;
+  font-style: italic;
+  margin-bottom: 5px;
+  line-height: 1.4;
 }
 
 .manager-hex:hover text {
@@ -239,4 +240,11 @@ label.hex-label {
 }
 .hex-flower-dialog ::-webkit-scrollbar-thumb:hover {
   background: #666;
+}
+
+/* Ensure Form fills window for layout */
+.hex-flower-editor.standard-form {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
 }
