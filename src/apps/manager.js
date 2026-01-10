@@ -184,9 +184,10 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     const edgeBehaviorOptions = {
       stop: "Stop",
-      wrap: "Wrap",
+      wrap: "Wrap (Antipodal)",
       reflect: "Reflect",
-      loop: "Loop",
+      rotateCW: "Rotate Clockwise (60°)",
+      rotateCCW: "Rotate Anti-Clockwise (60°)"
     };
 
     return {

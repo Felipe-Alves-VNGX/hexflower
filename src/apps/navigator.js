@@ -234,10 +234,52 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
                 targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
                 note = "(Blocked)";
             } else if (strategy === "wrap") {
-                // Antipodal? or simple wrap? user code had antipodal.
+                // Antipodal wrap (-q, -r)
                 targetCell = cells.find(c => c.coord.q === -nextQ && c.coord.r === -nextR);
                 note = "(Wrapped)";
-                if (!targetCell) targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r); // Fallback
+                if (!targetCell) {
+                     targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
+                     note = "(Blocked/Invalid Wrap)";
+                }
+            } else if (strategy === "rotateCW" || strategy === "rotateCCW") {
+                 // Hex Rotation from center (0,0)
+                 // s = -q - r
+                 const s = -nextQ - nextR;
+                 let rotQ, rotR;
+                 
+                 if (strategy === "rotateCW") {
+                     // CW: (q, r, s) -> (-r, -s, -q)
+                     rotQ = -nextR;
+                     rotR = -s; 
+                 } else {
+                     // CCW: (q, r, s) -> (-s, -q, -r)
+                     rotQ = -s;
+                     rotR = -nextQ;
+                 }
+                 
+                 targetCell = cells.find(c => c.coord.q === rotQ && c.coord.r === rotR);
+                 note = `(${strategy === 'rotateCW' ? 'Rotated CW' : 'Rotated CCW'})`;
+                 
+                 if (!targetCell) {
+                     targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
+                     note = "(Blocked Rotation)";
+                 }
+            } else if (strategy === "reflect") {
+                // Bounce back: Move in opposite direction
+                const opposites = { "N": "S", "NE": "SW", "SE": "NW", "S": "N", "SW": "NE", "NW": "SE", "SAME": "SAME" };
+                const opDir = opposites[dir] || "SAME";
+                const opD = deltas[opDir];
+                const opQ = currentCoord.q + opD.q;
+                const opR = currentCoord.r + opD.r;
+                
+                targetCell = cells.find(c => c.coord.q === opQ && c.coord.r === opR);
+                note = "(Reflected)";
+                
+                if (!targetCell) {
+                    // If even reflection is blocked (e.g. 1-cell flower), stay put
+                    targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
+                    note = "(Trapped)";
+                }
             }
         }
         
