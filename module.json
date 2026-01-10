@@ -1,7 +1,7 @@
 {
   "id": "hexflower",
   "title": "Hex Flower Engine",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "compatibility": {
     "minimum": "11",
     "verified": "12"
@@ -23,5 +23,5 @@
   "flags": [],
   "url": "https://github.com/Felipe-Alves-VNGX/hexflower",
   "manifest": "https://github.com/Felipe-Alves-VNGX/hexflower/releases/latest/download/module.json",
-  "download": "https://github.com/Felipe-Alves-VNGX/hexflower/releases/download/v1.0.31/module.zip"
+  "download": "https://github.com/Felipe-Alves-VNGX/hexflower/releases/download/v1.0.32/module.zip"
 }
