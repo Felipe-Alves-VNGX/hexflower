@@ -70,10 +70,10 @@
                 <tbody>
                     {{#each navigationRules}}
                     <tr>
-                        <td><input type="number" class="rule-min hex-input-small" data-idx="{{@index}}" data-key="min" value="{{this.min}}" style="width:40px"></td>
-                        <td><input type="number" class="rule-max hex-input-small" data-idx="{{@index}}" data-key="max" value="{{this.max}}" style="width:40px"></td>
+                        <td><input type="number" class="rule-min hex-input-small" name="navigationRules.{{@index}}.min" data-idx="{{@index}}" data-key="min" value="{{this.min}}" style="width:40px"></td>
+                        <td><input type="number" class="rule-max hex-input-small" name="navigationRules.{{@index}}.max" data-idx="{{@index}}" data-key="max" value="{{this.max}}" style="width:40px"></td>
                         <td>
-                            <select class="rule-dir hex-input-small" data-idx="{{@index}}" data-key="dir">
+                            <select class="rule-dir hex-input-small" name="navigationRules.{{@index}}.dir" data-idx="{{@index}}" data-key="dir">
                                 {{selectOptions ../directionOptions selected=this.dir}}
                             </select>
                         </td>

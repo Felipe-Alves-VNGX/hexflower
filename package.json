@@ -14,10 +14,10 @@
   "author": "Felipe Alves",
   "license": "MIT",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^9.0.0",
+    "@league-of-foundry-developers/foundry-vtt-types": "^13.346.0-beta.20250812191140",
     "terser": "^5.0.0",
     "typescript": "^5.0.0",
-    "vite": "^5.0.0"
+    "vite": "^7.3.1"
   },
   "dependencies": {
     "zod": "^3.22.4"

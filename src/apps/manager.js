@@ -106,7 +106,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     form: {
       handler: HexFlowerEditor._onSubmit,
       submitOnChange: false,
-      closeOnSubmit: true,
+      closeOnSubmit: false,
     },
   };
 
@@ -152,6 +152,8 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
             { min: 2, max: 2, dir: "NW" },
           ];
         }
+        // Save original state for dirty checking
+        this.originalState = JSON.parse(JSON.stringify(this.editorState.draft));
       }
     }
 
@@ -414,12 +416,19 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async _onSubmit(event, form, formData) {
-    const draft = this.editorState.draft;
-    // Final update from form data just in case?
-    // Actually custom handling in _updateDraftFromInput covered most, but `name` might be updated here.
-    draft.name = formData.object.name || draft.name;
+    await this._save(formData.object);
+  }
 
-    // Save
+  async _save(data = null) {
+    const draft = this.editorState.draft;
+    if (data) {
+      if (data.name) draft.name = data.name;
+      // Robustly update navigation rules from input names
+      if (data.navigationRules) {
+        draft.navigationRules = Object.values(data.navigationRules);
+      }
+    }
+
     const registry = getRegistry();
     const id = this.flowerId || generateId();
 
@@ -432,6 +441,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     };
 
     await saveRegistry(registry);
+    this.originalState = JSON.parse(JSON.stringify(draft));
     ui.notifications.info(`Saved ${draft.name}`);
 
     // Refresh Manager if open
@@ -439,5 +449,43 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
       (w) => w.id === "hex-flower-manager"
     );
     if (manager) manager.render();
+  }
+
+  async close(options = {}) {
+    if (!options.force && this.editorState.draft && this.originalState) {
+      const current = JSON.stringify(this.editorState.draft);
+      const original = JSON.stringify(this.originalState);
+
+      if (current !== original) {
+        return new Promise((resolve) => {
+          new Dialog({
+            title: "Unsaved Changes",
+            content: `<p>Do you want to save changes to <strong>${this.editorState.draft.name}</strong> before closing?</p>`,
+            buttons: {
+              save: {
+                label: "Save",
+                icon: '<i class="fas fa-save"></i>',
+                callback: async () => {
+                  await this._save();
+                  await super.close({ ...options, force: true });
+                  resolve();
+                },
+              },
+              discard: {
+                label: "Don't Save",
+                icon: '<i class="fas fa-trash"></i>',
+                callback: async () => {
+                  await super.close({ ...options, force: true });
+                  resolve();
+                },
+              },
+            },
+            default: "save",
+            close: () => resolve(), // Cancel keeps window open
+          }).render(true);
+        });
+      }
+    }
+    return super.close(options);
   }
 }
