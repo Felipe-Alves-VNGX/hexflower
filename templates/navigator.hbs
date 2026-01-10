@@ -8,8 +8,17 @@
         <button type="button" data-action="placeTile" style="margin-left:5px; width:auto;" title="Place current Hex as Tile"><i class="fas fa-map-marker-alt"></i></button>
     </div>
     
-    <div style="flex: 1; position: relative; background: #222; overflow: hidden; border: 1px solid #333;" id="hex-flower-container">
-        {{{svg}}}
-        <div id="hex-flower-info" class="hex-flower-tooltip" style="display:none;"></div>
+    <div class="hex-layout-split">
+        <!-- Main Flower View -->
+        <div class="hex-layout-main">
+            {{{svg}}}
+        </div>
+
+        <!-- Sidebar Details -->
+        <div class="hex-layout-sidebar">
+            <div id="hex-flower-info" class="hex-details-content">
+                <div class="hex-details-placeholder">Hover/Click a Hex for details</div>
+            </div>
+        </div>
     </div>
 </div>

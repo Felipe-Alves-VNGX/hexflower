@@ -14,37 +14,39 @@
     <div class="content" style="flex:1; overflow:hidden; position:relative;">
         
         <!-- VISUAL TAB -->
-        <div class="tab" data-tab="visual" data-group="main" style="height:100%; display:flex; gap:10px; padding-top:10px;">
-            <div class="hex-grid-pane" style="flex:1; display:flex; flex-direction:column;">
-                <div class="toolbar" style="margin-bottom:5px;">
-                    <button type="button" class="hex-btn" data-action="addHex"><i class="fas fa-plus"></i> Add Hex</button>
-                </div>
-                <!-- SVG Container -->
-                <div class="svg-container" style="flex:1; background: #222; border-radius: 4px; overflow: hidden; border:1px solid #333; position: relative;">
-                    {{{svg}}}
-                </div>
-            </div>
-            
-            <!-- Props Pane -->
-            <div class="hex-props-pane" style="width: 250px; background: #1a1a1a; padding: 10px; border-left: 1px solid #444; overflow-y: auto;">
-                {{#if selectedCell}}
-                <div class="props-form">
-                    <div class="form-group"><label>Title</label><input type="text" class="hex-input" data-prop="title" value="{{selectedCell.title}}"/></div>
-                    <div class="form-group"><label>Desc</label><textarea class="hex-input" data-prop="description" rows="2">{{selectedCell.description}}</textarea></div>
-                    <div class="form-group"><label>Type</label><input type="text" class="hex-input" data-prop="bioma" placeholder="e.g. Swamp" value="{{selectedCell.bioma}}"/></div>
-                    <div class="form-group"><label>Subtitle</label><input type="text" class="hex-input" data-prop="name" placeholder="Name/Subtitle" value="{{selectedCell.name}}"/></div>
-                    <div class="form-group"><label>Color</label><input type="color" data-prop="color" value="{{selectedCell.color}}" style="width:100%; height:30px; border:none;"/></div>
-                    <div class="form-group"><label>Icon/Emoji</label><input type="text" class="hex-input" data-prop="emoji" value="{{selectedCell.emoji}}"/></div>
-                    
-                    <div class="form-group" style="display:flex; justify-content:space-between; color:#777; font-size:0.8em; padding-top:5px;">
-                        <span>Q: {{selectedCell.coord.q}}</span>
-                        <span>R: {{selectedCell.coord.r}}</span>
-                        <button type="button" class="hex-btn danger small" data-action="deleteHex"><i class="fas fa-trash"></i> Delete</button>
+        <div class="tab" data-tab="visual" data-group="main" style="height:100%;">
+            <div class="hex-layout-split" style="padding-top:10px;">
+                <div class="hex-layout-main">
+                    <div class="toolbar" style="margin-bottom:5px; padding: 5px; background: #222; border-bottom:1px solid #333;">
+                        <button type="button" class="hex-btn" data-action="addHex"><i class="fas fa-plus"></i> Add Hex</button>
+                    </div>
+                    <!-- SVG Container -->
+                    <div class="svg-container" style="flex:1; background: #222; overflow: hidden; position: relative; border:none;">
+                        {{{svg}}}
                     </div>
                 </div>
-                {{else}}
-                <div class="hex-empty-props">Select a Hex to edit properties</div>
-                {{/if}}
+                
+                <!-- Props Pane -->
+                <div class="hex-layout-sidebar hex-props-pane" style="width: 300px; flex: 0 0 300px;">
+                    {{#if selectedCell}}
+                    <div class="props-form" style="padding:10px;">
+                        <div class="form-group"><label>Title</label><input type="text" class="hex-input" data-prop="title" value="{{selectedCell.title}}"/></div>
+                        <div class="form-group"><label>Desc</label><textarea class="hex-input" data-prop="description" rows="4">{{selectedCell.description}}</textarea></div>
+                        <div class="form-group"><label>Type</label><input type="text" class="hex-input" data-prop="bioma" placeholder="e.g. Swamp" value="{{selectedCell.bioma}}"/></div>
+                        <div class="form-group"><label>Subtitle</label><input type="text" class="hex-input" data-prop="name" placeholder="Name/Subtitle" value="{{selectedCell.name}}"/></div>
+                        <div class="form-group"><label>Color</label><input type="color" data-prop="color" value="{{selectedCell.color}}" style="width:100%; height:30px; border:none;"/></div>
+                        <div class="form-group"><label>Icon/Emoji</label><input type="text" class="hex-input" data-prop="emoji" value="{{selectedCell.emoji}}"/></div>
+                        
+                        <div class="form-group" style="display:flex; justify-content:space-between; color:#777; font-size:0.8em; padding-top:15px; border-top:1px solid #444; margin-top: 10px;">
+                            <span>Q: {{selectedCell.coord.q}}</span>
+                            <span>R: {{selectedCell.coord.r}}</span>
+                            <button type="button" class="hex-btn danger small" data-action="deleteHex"><i class="fas fa-trash"></i> Delete</button>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="hex-details-placeholder">Select a Hex to edit properties</div>
+                    {{/if}}
+                </div>
             </div>
         </div>
 

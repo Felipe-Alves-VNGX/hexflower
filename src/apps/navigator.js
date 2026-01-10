@@ -79,24 +79,48 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
     _onRender(context, options) {
         super._onRender(context, options);
 
-        // Tooltip logic
-        const tooltip = this.element.querySelector("#hex-flower-info");
+        // Info Panel Logic
+        const infoPanel = this.element.querySelector("#hex-flower-info");
+        
+        // Helper to update panel
+        const updatePanel = (data) => {
+             let info = `<h3 style="border-bottom:1px solid #555; padding-bottom:5px;">${data.emoji || ''} ${data.title || data.name || 'Hex'}</h3>`;
+             info += `<div style="margin-top:10px;">`;
+             if (data.description) info += `<p>${data.description}</p>`;
+             if (data.bioma) info += `<p><strong>Type:</strong> ${data.bioma}</p>`;
+             info += `<p style="color:#777; font-size:0.9em; margin-top:10px;">Coordinates: (${data.coord.q}, ${data.coord.r})</p>`;
+             info += `</div>`;
+             infoPanel.innerHTML = info;
+        };
+
+        const resetPanel = () => {
+             infoPanel.innerHTML = `<div class="hex-details-placeholder">Hover/Click a Hex for details</div>`;
+        };
+
         this.element.querySelectorAll(".hex-cell").forEach(el => {
             el.addEventListener("mouseenter", ev => {
                 const data = JSON.parse(ev.currentTarget.dataset.cell);
-                // Formatting
-                let info = `<h4>${data.emoji || ''} ${data.title || data.name || 'Hex'}</h4>`;
-                // Add more details if needed
-                if (data.description) info += `<i>${data.description}</i><br>`;
-                info += `Coord: (${data.coord.q}, ${data.coord.r})`;
-                
-                tooltip.innerHTML = info;
-                tooltip.style.display = "block";
+                updatePanel(data);
             });
-            el.addEventListener("mouseleave", () => tooltip.style.display = "none");
             
-            // Click to teleport (GM only?) or confirm
-            el.addEventListener("click", ev => this._onHexClick(ev));
+            el.addEventListener("mouseleave", () => {
+                // Optional: Reset on mouseleave? Or keep last viewed? 
+                // User might prefer keeping it if they want to read it.
+                // But "hover" implies transient. Let's keep it transient or make it sticky on click?
+                // For now, let's just NOT reset on leave to allow reading, 
+                // OR reset if that's the expected 'tooltip' behavior replacement.
+                // Given it's a "Details Box", usually sticky on click is best, hover is preview.
+                // But the requested flow is "Navigator".
+                // Let's reset for now to match old behavior, but maybe check if we clicked.
+                resetPanel();
+            });
+
+            // Click also updates (and teleports)
+            el.addEventListener("click", ev => {
+                 const data = JSON.parse(ev.currentTarget.dataset.cell);
+                 updatePanel(data);
+                 this._onHexClick(ev); 
+            });
         });
 
         // Register Hook if not already

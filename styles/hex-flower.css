@@ -248,3 +248,49 @@ label.hex-label {
   margin: 0;
   overflow: hidden;
 }
+
+/* Responsive Split Layout */
+.hex-layout-split {
+  display: flex;
+  height: 100%;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.hex-layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  background: var(--hex-bg-dark);
+  border: 1px solid var(--hex-border);
+  border-radius: 4px;
+}
+
+.hex-layout-sidebar {
+  flex: 0 0 300px;
+  background: var(--hex-bg-panel);
+  border: 1px solid var(--hex-border);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.hex-details-content {
+  padding: 10px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.hex-details-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--hex-text-dim);
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
