@@ -1,33 +1,79 @@
-# Hex Flower Engine for Foundry VTT
+# 🌸 Hex Flower Engine
 
-A Foundry VTT module that converts Hex Flower macros into a fully integrated module.
-Features a Manager for creating/editing Hex Flowers and a Navigator for using them in-game.
+### _The Ultimate Hex Flower Tool for Foundry VTT_
 
-## Installation
+![Foundry v12](https://img.shields.io/badge/Foundry-v12-orange)
+![License](https://img.shields.io/badge/License-MIT-blue)
+![Version](https://img.shields.io/badge/Version-1.0.30-green)
 
-### Installation via Manifest URL (Recommended)
+A robust, fully integrated module that brings the power of **Hex Flower Game Engines** to Foundry VTT. Create, manage, and play through procedural hex-crawls, weather systems, and AI behaviors with ease.
+
+---
+
+## ✨ Features
+
+### 🎨 Visual Editor
+
+- **Drag-and-Drop Creation**: Build your flowers intuitively.
+- **Split-Screen Layout**: Edit visual layout and properties side-by-side.
+- **Live Preview**: See changes instantly as you design.
+
+### 🧭 Navigator
+
+- **Immersive Play**: Dedicated window for running the game.
+- **Persistent Details**: Click any hex to see full details in a persistent side panel.
+- **Smart Rolls**: Integrated 2d6 rolling with automatic movement.
+
+### ⚙️ Powerful Rules
+
+- **Custom Navigation**: Define your own 2d6 probability mappings (e.g., standard Bell Curve or custom biases).
+- **Edge Behaviors**:
+  - **Stop**: Block movement at edges.
+  - **Wrap**: Warp to the other side (Cylinder/Torus).
+  - **Reflect**: Bounce back.
+  - **Loop**: Custom looping logic.
+
+### 🔗 Integrations
+
+- **Dice So Nice**: Visual 3D dice rolls.
+- **Tiles & Tagger**: Place hexes as tiles on the scene.
+
+---
+
+## 📦 Installation
+
+### Recommended (Manifest URL)
 
 1.  Open Foundry VTT and go to the **Add-on Modules** tab.
 2.  Click **Install Module**.
-3.  In the **Manifest URL** field, paste:
-    `https://github.com/Felipe-Alves-VNGX/hexflower/releases/latest/download/module.json`
+3.  Paste the following URL:
+    ```
+    https://github.com/Felipe-Alves-VNGX/hexflower/releases/latest/download/module.json
+    ```
 4.  Click **Install**.
 
-### Manual Install (Development)
+### Manual (Development)
 
-1.  Clone this repository or download the source code.
-2.  Install dependencies: `npm install`
-3.  Build the project: `npm run build`
-4.  Link the folder to your Foundry VTT `Data/modules/` directory.
+1.  Clone this repository.
+2.  `npm install`
+3.  `npm run build`
+4.  Symlink to your Foundry `Data/modules/` folder.
 
-#### Symlink (PowerShell)
+---
 
-```powershell
-New-Item -ItemType Junction -Path "C:\Path\To\FoundryVTT\Data\modules\hex-flower-engine" -Target "C:\Users\felipe.alves\Documents\Estudo\hexflower"
-```
+## 🚀 Upgrade Guide to v1.0.30
 
-## Usage
+> [!NOTE]  
+> If you are upgrading from < v1.0.18, please note the new layout changes! Since v1.0.30, the Navigator uses a persistent side panel instead of toolcovers.
 
-1.  **Enable Module**: Launch a World and enable "Hex Flower Engine" in "Manage Modules".
-2.  **Manager**: Go to **Module Settings** and open the **Hex Flower Manager** to create/import flowers.
-3.  **Navigator**: Open the **Scene Controls** (left sidebar), click the **Hexagon** icon, and select the **Navigator** tool.
+---
+
+## 🎮 Usage
+
+1.  **Enable Module**: Manage Modules -> Enable "Hex Flower Engine".
+2.  **Create**: Go to Module Settings -> **Hex Flower Manager**.
+3.  **Play**: Sidebar -> **Hexagon Icon** -> **Navigator**.
+
+---
+
+<p align="center">Made with ❤️ by Felipe Alves</p>

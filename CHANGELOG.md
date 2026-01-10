@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.30] - 2026-01-10
+
+### Changed
+
+- **UI Redesign**: Overhauled layout for both Navigator and Manager to use a responsive side-by-side Flex Grid.
+- **Navigator**: Moved hex details from tooltip to persistent side panel.
+
+## [1.0.29] - 2026-01-10
+
+### Fixed
+
+- **Navigation Rules**: Fixed critical bug where rules were not saving due to missing input listeners (`.hex-input-small`).
+
+## [1.0.28] - 2026-01-10
+
+### Fixed
+
+- **Save Logic**: "Save Flower" button no longer closes the window.
+- **Unsaved Changes**: Added confirmation dialog for unsaved changes when closing.
+- **Data Integrity**: Improved `data.name` and fallback references during save.
+
+## [1.0.27] - 2026-01-10
+
+### Fixed
+
+- **Error Handling**: Fixed TypeError in `_onSubmit` during save operations.
+
 ## [1.0.18] - 2026-01-08
 
 ### Fixed
