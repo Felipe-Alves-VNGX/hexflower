@@ -1,0 +1,62 @@
+<h1>🌸 Hex Flower Engine Guide</h1>
+<p>Welcome to the Hex Flower Engine! This module allows you to run procedural hex-crawls using the "Hex Flower" mechanic. With this tool, you can create complex, dynamic environments where navigation is determined by probability and rules rather than static maps.</p>
+
+<hr>
+
+<h2>🚀 Quick Start</h2>
+<p>Follow these steps to get your first flower blooming:</p>
+<ol>
+    <li>
+        <strong>Create a Flower</strong>
+        <p>Run the <em>Open Hex Manager</em> macro, or go to <strong>Game Settings &rarr; Module Settings &rarr; Hex Flower Manager</strong>. Click "Create" to start a new flower.</p>
+    </li>
+    <li>
+        <strong>Add Hexes</strong>
+        <p>In the Visual Editor, use the "Add Hex" button to expand your grid. Click on any hex to select it and edit its properties in the right-hand panel:</p>
+        <ul>
+            <li><strong>Title & Description</strong>: What the players see/encounter.</li>
+            <li><strong>Icon/Emoji</strong>: A visual representation on the grid.</li>
+            <li><strong>Type/Biome</strong>: Useful for categorizing regions.</li>
+        </ul>
+    </li>
+    <li>
+        <strong>Set Rules</strong>
+        <p>Switch to the <strong>Rules</strong> tab in the editor. Here you defined how the party moves:</p>
+        <ul>
+            <li><strong>Navigation Rules (2d6)</strong>: Define which roll totals correspond to which direction (N, NE, SE, S, SW, NW, Stay).</li>
+            <li><strong>Edge Behavior</strong>: Decide what happens when the party moves off the grid (Stop, Wrap, Reflect, Rotate).</li>
+        </ul>
+    </li>
+    <li>
+        <strong>Play!</strong>
+        <p>Select a Token on the scene (representing the party). Run the <em>Open Hex Navigator</em> macro. You can now roll for navigation or manually click hexes to travel.</p>
+    </li>
+</ol>
+
+<hr>
+
+<h2>🧭 Navigator Controls</h2>
+<p>The Navigator is your main interface during play.</p>
+<ul>
+    <li><strong>Roll Navigation</strong>: Rolls 2d6 (displayed with Dice So Nice if installed) and automatically moves the party token to the next hex based on your rules.</li>
+    <li><strong>Click to Move</strong>: Clicking a hex in the navigator creates a "Teleport" dialog, allowing you to manually move the party there (useful for starting positions or GM overrides).</li>
+    <li><strong>Hex Details</strong>: Click any hex to view its full description and details in the side panel.</li>
+</ul>
+
+<h3>Edge Behaviors</h3>
+<p>When the party attempts to move off the edge of the defined grid, the <strong>Edge Behavior</strong> setting determines the outcome:</p>
+<ul>
+    <li><strong>Stop</strong>: The movement is blocked. The party stays in the current hex.</li>
+    <li><strong>Wrap (Antipodal)</strong>: The party warps to the opposite side of the map (useful for planet-like or cylinder worlds).</li>
+    <li><strong>Reflect</strong>: The party "bounces" back. If they tried to go North, they are sent South instead.</li>
+    <li><strong>Rotate (CW/CCW)</strong>: The position is rotated 60° around the center of the map. This creates a "twisted" connection effect.</li>
+</ul>
+
+<hr>
+
+<h2>⌨️ Macros</h2>
+<p>We have added sample macros to your Macro Directory:</p>
+<ul>
+    <li><strong>Open Hex Navigator</strong>: Opens the play window. Accessible to players if they have permission.</li>
+    <li><strong>Open Hex Manager</strong>: Opens the editor. <strong>GM Only</strong>.</li>
+</ul>

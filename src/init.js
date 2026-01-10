@@ -1,5 +1,6 @@
 import { HexFlowerManager } from "./apps/manager.js";
 import { HexFlowerNavigator } from "./apps/navigator.js";
+import { HexFlowerSetup } from "./setup.js";
 
 Hooks.on("init", () => {
     // Register Settings Menu
@@ -12,6 +13,14 @@ Hooks.on("init", () => {
         restricted: true
     });
 
+    // Hidden Setting for Welcome/Setup Versioning
+    game.settings.register("hexflower", "welcomeVersion", {
+        scope: "world",
+        config: false,
+        type: String,
+        default: ""
+    });
+
     // Expose API
     game.hexFlower = {
         HexFlowerManager,
@@ -21,7 +30,11 @@ Hooks.on("init", () => {
     };
     
     // Log
-    console.log("Hex Flower Engine | Initialized (v1.1.0-beta.1)");
+    console.log("Hex Flower Engine | Initialized");
+});
+
+Hooks.on("ready", () => {
+    HexFlowerSetup.check();
 });
 
 
