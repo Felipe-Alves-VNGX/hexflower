@@ -267,7 +267,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
     // Bind Prop Inputs Changes manually
     const inputs = this.element.querySelectorAll(
-      ".hex-input, input[type='color']"
+      ".hex-input, .hex-input-small, input[type='color']"
     );
     inputs.forEach((input) => {
       input.addEventListener("change", (ev) => {
@@ -421,12 +421,9 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _save(data = null) {
     const draft = this.editorState.draft;
-    if (data) {
-      if (data.name) draft.name = data.name;
-      // Robustly update navigation rules from input names
-      if (data.navigationRules) {
-        draft.navigationRules = Object.values(data.navigationRules);
-      }
+    // Update name from formData if present, as it is a main field
+    if (data && data.name) {
+        draft.name = data.name;
     }
 
     const registry = getRegistry();
