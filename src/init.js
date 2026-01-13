@@ -14,6 +14,16 @@ Hooks.on("init", () => {
         restricted: true
     });
 
+    // 3D Dice Setting
+    game.settings.register("hexflower", "enable3dDice", {
+        name: "Enable 3D Dice",
+        hint: "If Dice So Nice is active, show 3D dice animations for navigation rolls.",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true
+    });
+
     // Hidden Setting for Welcome/Setup Versioning
     game.settings.register("hexflower", "welcomeVersion", {
         scope: "world",

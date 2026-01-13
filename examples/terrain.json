@@ -1,0 +1,1086 @@
+{
+  "name": "Procedural Terrain",
+  "version": "1.0.0",
+  "edgeBehavior": "wrap",
+  "activeHex": {
+    "q": 0,
+    "r": 0,
+    "s": 0
+  },
+  "navigationRules": [
+    {
+      "min": 2,
+      "max": 2,
+      "dir": "N"
+    },
+    {
+      "min": 3,
+      "max": 4,
+      "dir": "NE"
+    },
+    {
+      "min": 5,
+      "max": 6,
+      "dir": "SE"
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "dir": "SAME"
+    },
+    {
+      "min": 8,
+      "max": 9,
+      "dir": "S"
+    },
+    {
+      "min": 10,
+      "max": 11,
+      "dir": "SW"
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "dir": "NW"
+    }
+  ],
+  "cells": [
+    {
+      "coord": {
+        "q": -4,
+        "r": 0,
+        "s": 4
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Freezing, Balanced, Mountainous)",
+      "debug": {
+        "temp": 1,
+        "arid": 4,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": -4,
+        "r": 1,
+        "s": 3
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Freezing, Dry, Mountainous)",
+      "debug": {
+        "temp": 1,
+        "arid": 5,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": -4,
+        "r": 2,
+        "s": 2
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Freezing, Arid, Highland)",
+      "debug": {
+        "temp": 1,
+        "arid": 6,
+        "alt": 6
+      }
+    },
+    {
+      "coord": {
+        "q": -4,
+        "r": 3,
+        "s": 1
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Freezing, Parched, Lowland)",
+      "debug": {
+        "temp": 1,
+        "arid": 7,
+        "alt": 5
+      }
+    },
+    {
+      "coord": {
+        "q": -4,
+        "r": 4,
+        "s": 0
+      },
+      "title": "Rocky Fjords",
+      "description": "Cold, jagged cliffs.",
+      "emoji": "🧗",
+      "color": "#708090",
+      "bioma": "Transitional (Freezing, Parched, Coastal)",
+      "debug": {
+        "temp": 1,
+        "arid": 7,
+        "alt": 4
+      }
+    },
+    {
+      "coord": {
+        "q": -3,
+        "r": -1,
+        "s": 4
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Freezing, Humid, Mountainous)",
+      "debug": {
+        "temp": 1,
+        "arid": 3,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": -3,
+        "r": 0,
+        "s": 3
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Freezing, Balanced, Mountainous)",
+      "debug": {
+        "temp": 1,
+        "arid": 4,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": -3,
+        "r": 1,
+        "s": 2
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Freezing, Dry, Highland)",
+      "debug": {
+        "temp": 1,
+        "arid": 5,
+        "alt": 6
+      }
+    },
+    {
+      "coord": {
+        "q": -3,
+        "r": 2,
+        "s": 1
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Freezing, Arid, Lowland)",
+      "debug": {
+        "temp": 1,
+        "arid": 6,
+        "alt": 5
+      }
+    },
+    {
+      "coord": {
+        "q": -3,
+        "r": 3,
+        "s": 0
+      },
+      "title": "Rocky Fjords",
+      "description": "Cold, jagged cliffs.",
+      "emoji": "🧗",
+      "color": "#708090",
+      "bioma": "Transitional (Freezing, Parched, Coastal)",
+      "debug": {
+        "temp": 1,
+        "arid": 7,
+        "alt": 4
+      }
+    },
+    {
+      "coord": {
+        "q": -3,
+        "r": 4,
+        "s": -1
+      },
+      "title": "Shallow Seas / Reefs",
+      "description": "Clear waters teeming with life.",
+      "emoji": "🐠",
+      "color": "#00CED1",
+      "bioma": "Oceanic (Freezing, Parched, Shallow)",
+      "debug": {
+        "temp": 1,
+        "arid": 7,
+        "alt": 3
+      }
+    },
+    {
+      "coord": {
+        "q": -2,
+        "r": -2,
+        "s": 4
+      },
+      "title": "Snowy Forest",
+      "description": "Conifers covered in snow.",
+      "emoji": "🌲",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Cold, Wet, Mountainous)",
+      "debug": {
+        "temp": 2,
+        "arid": 2,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": -2,
+        "r": -1,
+        "s": 3
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Cold, Humid, Mountainous)",
+      "debug": {
+        "temp": 2,
+        "arid": 3,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": -2,
+        "r": 0,
+        "s": 2
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Cold, Balanced, Highland)",
+      "debug": {
+        "temp": 2,
+        "arid": 4,
+        "alt": 6
+      }
+    },
+    {
+      "coord": {
+        "q": -2,
+        "r": 1,
+        "s": 1
+      },
+      "title": "Tundra",
+      "description": "Frozen ground, minimal tree cover.",
+      "emoji": "❄️",
+      "color": "#E0FFFF",
+      "bioma": "Terrestrial (Cold, Dry, Lowland)",
+      "debug": {
+        "temp": 2,
+        "arid": 5,
+        "alt": 5
+      }
+    },
+    {
+      "coord": {
+        "q": -2,
+        "r": 2,
+        "s": 0
+      },
+      "title": "Rocky Fjords",
+      "description": "Cold, jagged cliffs.",
+      "emoji": "🧗",
+      "color": "#708090",
+      "bioma": "Transitional (Cold, Arid, Coastal)",
+      "debug": {
+        "temp": 2,
+        "arid": 6,
+        "alt": 4
+      }
+    },
+    {
+      "coord": {
+        "q": -2,
+        "r": 3,
+        "s": -1
+      },
+      "title": "Shallow Seas / Reefs",
+      "description": "Clear waters teeming with life.",
+      "emoji": "🐠",
+      "color": "#00CED1",
+      "bioma": "Oceanic (Cold, Parched, Shallow)",
+      "debug": {
+        "temp": 2,
+        "arid": 7,
+        "alt": 3
+      }
+    },
+    {
+      "coord": {
+        "q": -2,
+        "r": 4,
+        "s": -2
+      },
+      "title": "Icy Ocean",
+      "description": "Icebergs float in freezing waters.",
+      "emoji": "🧊",
+      "color": "#ADD8E6",
+      "bioma": "Oceanic (Cold, Parched, Deep)",
+      "debug": {
+        "temp": 2,
+        "arid": 7,
+        "alt": 2
+      }
+    },
+    {
+      "coord": {
+        "q": -1,
+        "r": -3,
+        "s": 4
+      },
+      "title": "Wetlands",
+      "description": "Boggy ground, difficult terrain.",
+      "emoji": "🐸",
+      "color": "#556B2F",
+      "bioma": "Terrestrial (Chilly, Saturated, Mountainous)",
+      "debug": {
+        "temp": 3,
+        "arid": 1,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": -1,
+        "r": -2,
+        "s": 3
+      },
+      "title": "Wetlands",
+      "description": "Boggy ground, difficult terrain.",
+      "emoji": "🐸",
+      "color": "#556B2F",
+      "bioma": "Terrestrial (Chilly, Wet, Mountainous)",
+      "debug": {
+        "temp": 3,
+        "arid": 2,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": -1,
+        "r": -1,
+        "s": 2
+      },
+      "title": "Highlands",
+      "description": "Rolling hills and higher elevation plateaus.",
+      "emoji": "⛰️",
+      "color": "#8FBC8F",
+      "bioma": "Terrestrial (Chilly, Humid, Highland)",
+      "debug": {
+        "temp": 3,
+        "arid": 3,
+        "alt": 6
+      }
+    },
+    {
+      "coord": {
+        "q": -1,
+        "r": 0,
+        "s": 1
+      },
+      "title": "Plains",
+      "description": "Flat or gently rolling land.",
+      "emoji": "🌱",
+      "color": "#90EE90",
+      "bioma": "Terrestrial (Chilly, Balanced, Lowland)",
+      "debug": {
+        "temp": 3,
+        "arid": 4,
+        "alt": 5
+      }
+    },
+    {
+      "coord": {
+        "q": -1,
+        "r": 1,
+        "s": 0
+      },
+      "title": "Coastal Plains",
+      "description": "Where land meets sea.",
+      "emoji": "🏖️",
+      "color": "#9ACD32",
+      "bioma": "Transitional (Chilly, Dry, Coastal)",
+      "debug": {
+        "temp": 3,
+        "arid": 5,
+        "alt": 4
+      }
+    },
+    {
+      "coord": {
+        "q": -1,
+        "r": 2,
+        "s": -1
+      },
+      "title": "Shallow Seas / Reefs",
+      "description": "Clear waters teeming with life.",
+      "emoji": "🐠",
+      "color": "#00CED1",
+      "bioma": "Oceanic (Chilly, Arid, Shallow)",
+      "debug": {
+        "temp": 3,
+        "arid": 6,
+        "alt": 3
+      }
+    },
+    {
+      "coord": {
+        "q": -1,
+        "r": 3,
+        "s": -2
+      },
+      "title": "Open Ocean",
+      "description": "Vast expanse of deep blue water.",
+      "emoji": "🌊",
+      "color": "#00008B",
+      "bioma": "Oceanic (Chilly, Parched, Deep)",
+      "debug": {
+        "temp": 3,
+        "arid": 7,
+        "alt": 2
+      }
+    },
+    {
+      "coord": {
+        "q": -1,
+        "r": 4,
+        "s": -3
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Chilly, Parched, Abyssal)",
+      "debug": {
+        "temp": 3,
+        "arid": 7,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 0,
+        "r": -4,
+        "s": 4
+      },
+      "title": "Wetlands",
+      "description": "Boggy ground, difficult terrain.",
+      "emoji": "🐸",
+      "color": "#556B2F",
+      "bioma": "Terrestrial (Temperate, Saturated, Mountainous)",
+      "debug": {
+        "temp": 4,
+        "arid": 1,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": 0,
+        "r": -3,
+        "s": 3
+      },
+      "title": "Wetlands",
+      "description": "Boggy ground, difficult terrain.",
+      "emoji": "🐸",
+      "color": "#556B2F",
+      "bioma": "Terrestrial (Temperate, Saturated, Mountainous)",
+      "debug": {
+        "temp": 4,
+        "arid": 1,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": 0,
+        "r": -2,
+        "s": 2
+      },
+      "title": "Wetlands",
+      "description": "Boggy ground, difficult terrain.",
+      "emoji": "🐸",
+      "color": "#556B2F",
+      "bioma": "Terrestrial (Temperate, Wet, Highland)",
+      "debug": {
+        "temp": 4,
+        "arid": 2,
+        "alt": 6
+      }
+    },
+    {
+      "coord": {
+        "q": 0,
+        "r": -1,
+        "s": 1
+      },
+      "title": "Plains",
+      "description": "Flat or gently rolling land.",
+      "emoji": "🌱",
+      "color": "#90EE90",
+      "bioma": "Terrestrial (Temperate, Humid, Lowland)",
+      "debug": {
+        "temp": 4,
+        "arid": 3,
+        "alt": 5
+      }
+    },
+    {
+      "coord": {
+        "q": 0,
+        "r": 0,
+        "s": 0
+      },
+      "title": "Coastal Plains",
+      "description": "Where land meets sea.",
+      "emoji": "🏖️",
+      "color": "#9ACD32",
+      "bioma": "Transitional (Temperate, Balanced, Coastal)",
+      "debug": {
+        "temp": 4,
+        "arid": 4,
+        "alt": 4
+      }
+    },
+    {
+      "coord": {
+        "q": 0,
+        "r": 1,
+        "s": -1
+      },
+      "title": "Shallow Seas / Reefs",
+      "description": "Clear waters teeming with life.",
+      "emoji": "🐠",
+      "color": "#00CED1",
+      "bioma": "Oceanic (Temperate, Dry, Shallow)",
+      "debug": {
+        "temp": 4,
+        "arid": 5,
+        "alt": 3
+      }
+    },
+    {
+      "coord": {
+        "q": 0,
+        "r": 2,
+        "s": -2
+      },
+      "title": "Open Ocean",
+      "description": "Vast expanse of deep blue water.",
+      "emoji": "🌊",
+      "color": "#00008B",
+      "bioma": "Oceanic (Temperate, Arid, Deep)",
+      "debug": {
+        "temp": 4,
+        "arid": 6,
+        "alt": 2
+      }
+    },
+    {
+      "coord": {
+        "q": 0,
+        "r": 3,
+        "s": -3
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Temperate, Parched, Abyssal)",
+      "debug": {
+        "temp": 4,
+        "arid": 7,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 0,
+        "r": 4,
+        "s": -4
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Temperate, Parched, Abyssal)",
+      "debug": {
+        "temp": 4,
+        "arid": 7,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 1,
+        "r": -4,
+        "s": 3
+      },
+      "title": "Tropical Rainforest",
+      "description": "Dense, lush canopy and high humidity.",
+      "emoji": "🐆",
+      "color": "#006400",
+      "bioma": "Terrestrial (Warm, Saturated, Mountainous)",
+      "debug": {
+        "temp": 5,
+        "arid": 1,
+        "alt": 7
+      }
+    },
+    {
+      "coord": {
+        "q": 1,
+        "r": -3,
+        "s": 2
+      },
+      "title": "Tropical Rainforest",
+      "description": "Dense, lush canopy and high humidity.",
+      "emoji": "🐆",
+      "color": "#006400",
+      "bioma": "Terrestrial (Warm, Saturated, Highland)",
+      "debug": {
+        "temp": 5,
+        "arid": 1,
+        "alt": 6
+      }
+    },
+    {
+      "coord": {
+        "q": 1,
+        "r": -2,
+        "s": 1
+      },
+      "title": "Tropical Rainforest",
+      "description": "Dense, lush canopy and high humidity.",
+      "emoji": "🐆",
+      "color": "#006400",
+      "bioma": "Terrestrial (Warm, Wet, Lowland)",
+      "debug": {
+        "temp": 5,
+        "arid": 2,
+        "alt": 5
+      }
+    },
+    {
+      "coord": {
+        "q": 1,
+        "r": -1,
+        "s": 0
+      },
+      "title": "Coastal Plains",
+      "description": "Where land meets sea.",
+      "emoji": "🏖️",
+      "color": "#9ACD32",
+      "bioma": "Transitional (Warm, Humid, Coastal)",
+      "debug": {
+        "temp": 5,
+        "arid": 3,
+        "alt": 4
+      }
+    },
+    {
+      "coord": {
+        "q": 1,
+        "r": 0,
+        "s": -1
+      },
+      "title": "Shallow Seas / Reefs",
+      "description": "Clear waters teeming with life.",
+      "emoji": "🐠",
+      "color": "#00CED1",
+      "bioma": "Oceanic (Warm, Balanced, Shallow)",
+      "debug": {
+        "temp": 5,
+        "arid": 4,
+        "alt": 3
+      }
+    },
+    {
+      "coord": {
+        "q": 1,
+        "r": 1,
+        "s": -2
+      },
+      "title": "Open Ocean",
+      "description": "Vast expanse of deep blue water.",
+      "emoji": "🌊",
+      "color": "#00008B",
+      "bioma": "Oceanic (Warm, Dry, Deep)",
+      "debug": {
+        "temp": 5,
+        "arid": 5,
+        "alt": 2
+      }
+    },
+    {
+      "coord": {
+        "q": 1,
+        "r": 2,
+        "s": -3
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Warm, Arid, Abyssal)",
+      "debug": {
+        "temp": 5,
+        "arid": 6,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 1,
+        "r": 3,
+        "s": -4
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Warm, Parched, Abyssal)",
+      "debug": {
+        "temp": 5,
+        "arid": 7,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 2,
+        "r": -4,
+        "s": 2
+      },
+      "title": "Tropical Rainforest",
+      "description": "Dense, lush canopy and high humidity.",
+      "emoji": "🐆",
+      "color": "#006400",
+      "bioma": "Terrestrial (Hot, Saturated, Highland)",
+      "debug": {
+        "temp": 6,
+        "arid": 1,
+        "alt": 6
+      }
+    },
+    {
+      "coord": {
+        "q": 2,
+        "r": -3,
+        "s": 1
+      },
+      "title": "Tropical Rainforest",
+      "description": "Dense, lush canopy and high humidity.",
+      "emoji": "🐆",
+      "color": "#006400",
+      "bioma": "Terrestrial (Hot, Saturated, Lowland)",
+      "debug": {
+        "temp": 6,
+        "arid": 1,
+        "alt": 5
+      }
+    },
+    {
+      "coord": {
+        "q": 2,
+        "r": -2,
+        "s": 0
+      },
+      "title": "Mangrove Swamp",
+      "description": "Thick, wet vegetation along the water.",
+      "emoji": "🐊",
+      "color": "#2F4F4F",
+      "bioma": "Transitional (Hot, Wet, Coastal)",
+      "debug": {
+        "temp": 6,
+        "arid": 2,
+        "alt": 4
+      }
+    },
+    {
+      "coord": {
+        "q": 2,
+        "r": -1,
+        "s": -1
+      },
+      "title": "Tropical Lagoon",
+      "description": "Clear waters teeming with life.",
+      "emoji": "🏝️",
+      "color": "#00CED1",
+      "bioma": "Oceanic (Hot, Humid, Shallow)",
+      "debug": {
+        "temp": 6,
+        "arid": 3,
+        "alt": 3
+      }
+    },
+    {
+      "coord": {
+        "q": 2,
+        "r": 0,
+        "s": -2
+      },
+      "title": "Open Ocean",
+      "description": "Vast expanse of deep blue water.",
+      "emoji": "🌊",
+      "color": "#00008B",
+      "bioma": "Oceanic (Hot, Balanced, Deep)",
+      "debug": {
+        "temp": 6,
+        "arid": 4,
+        "alt": 2
+      }
+    },
+    {
+      "coord": {
+        "q": 2,
+        "r": 1,
+        "s": -3
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Hot, Dry, Abyssal)",
+      "debug": {
+        "temp": 6,
+        "arid": 5,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 2,
+        "r": 2,
+        "s": -4
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Hot, Arid, Abyssal)",
+      "debug": {
+        "temp": 6,
+        "arid": 6,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 3,
+        "r": -4,
+        "s": 1
+      },
+      "title": "Tropical Rainforest",
+      "description": "Dense, lush canopy and high humidity.",
+      "emoji": "🐆",
+      "color": "#006400",
+      "bioma": "Terrestrial (Scorching, Saturated, Lowland)",
+      "debug": {
+        "temp": 7,
+        "arid": 1,
+        "alt": 5
+      }
+    },
+    {
+      "coord": {
+        "q": 3,
+        "r": -3,
+        "s": 0
+      },
+      "title": "Mangrove Swamp",
+      "description": "Thick, wet vegetation along the water.",
+      "emoji": "🐊",
+      "color": "#2F4F4F",
+      "bioma": "Transitional (Scorching, Saturated, Coastal)",
+      "debug": {
+        "temp": 7,
+        "arid": 1,
+        "alt": 4
+      }
+    },
+    {
+      "coord": {
+        "q": 3,
+        "r": -2,
+        "s": -1
+      },
+      "title": "Tropical Lagoon",
+      "description": "Clear waters teeming with life.",
+      "emoji": "🏝️",
+      "color": "#00CED1",
+      "bioma": "Oceanic (Scorching, Wet, Shallow)",
+      "debug": {
+        "temp": 7,
+        "arid": 2,
+        "alt": 3
+      }
+    },
+    {
+      "coord": {
+        "q": 3,
+        "r": -1,
+        "s": -2
+      },
+      "title": "Open Ocean",
+      "description": "Vast expanse of deep blue water.",
+      "emoji": "🌊",
+      "color": "#00008B",
+      "bioma": "Oceanic (Scorching, Humid, Deep)",
+      "debug": {
+        "temp": 7,
+        "arid": 3,
+        "alt": 2
+      }
+    },
+    {
+      "coord": {
+        "q": 3,
+        "r": 0,
+        "s": -3
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Scorching, Balanced, Abyssal)",
+      "debug": {
+        "temp": 7,
+        "arid": 4,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 3,
+        "r": 1,
+        "s": -4
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Scorching, Dry, Abyssal)",
+      "debug": {
+        "temp": 7,
+        "arid": 5,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 4,
+        "r": -4,
+        "s": 0
+      },
+      "title": "Mangrove Swamp",
+      "description": "Thick, wet vegetation along the water.",
+      "emoji": "🐊",
+      "color": "#2F4F4F",
+      "bioma": "Transitional (Scorching, Saturated, Coastal)",
+      "debug": {
+        "temp": 7,
+        "arid": 1,
+        "alt": 4
+      }
+    },
+    {
+      "coord": {
+        "q": 4,
+        "r": -3,
+        "s": -1
+      },
+      "title": "Tropical Lagoon",
+      "description": "Clear waters teeming with life.",
+      "emoji": "🏝️",
+      "color": "#00CED1",
+      "bioma": "Oceanic (Scorching, Saturated, Shallow)",
+      "debug": {
+        "temp": 7,
+        "arid": 1,
+        "alt": 3
+      }
+    },
+    {
+      "coord": {
+        "q": 4,
+        "r": -2,
+        "s": -2
+      },
+      "title": "Open Ocean",
+      "description": "Vast expanse of deep blue water.",
+      "emoji": "🌊",
+      "color": "#00008B",
+      "bioma": "Oceanic (Scorching, Wet, Deep)",
+      "debug": {
+        "temp": 7,
+        "arid": 2,
+        "alt": 2
+      }
+    },
+    {
+      "coord": {
+        "q": 4,
+        "r": -1,
+        "s": -3
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Scorching, Humid, Abyssal)",
+      "debug": {
+        "temp": 7,
+        "arid": 3,
+        "alt": 1
+      }
+    },
+    {
+      "coord": {
+        "q": 4,
+        "r": 0,
+        "s": -4
+      },
+      "title": "Abyssal Trench",
+      "description": "Dark, crushing depths with no light.",
+      "emoji": "🦑",
+      "color": "#000033",
+      "bioma": "Oceanic (Scorching, Balanced, Abyssal)",
+      "debug": {
+        "temp": 7,
+        "arid": 4,
+        "alt": 1
+      }
+    }
+  ]
+}

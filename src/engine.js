@@ -28,7 +28,7 @@ export class HexFlowerEngine {
              roll = { total: total, result: "Forced" }; // Mock roll object
         } else {
              roll = await new Roll("2d6").evaluate();
-             if (game.modules.get("dice-so-nice")?.active) {
+             if (game.modules.get("dice-so-nice")?.active && game.settings.get("hexflower", "enable3dDice")) {
                  await game.dice3d.showForRoll(roll, game.user, true);
              }
              total = roll.total;

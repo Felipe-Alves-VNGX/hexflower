@@ -25,9 +25,9 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
             icon: "fas fa-compass"
         },
         actions: {
-            roll: HexFlowerNavigator._onRoll,
-            back: HexFlowerNavigator._onBack,
-            placeTile: HexFlowerNavigator._onPlaceTile
+            roll: "_onRoll",
+            back: "_onBack",
+            placeTile: "_onPlaceTile"
         }
     };
 
@@ -161,7 +161,7 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
         }
     }
 
-    static async _onBack(event, target) {
+    async _onBack(event, target) {
         // Show selection dialog? Or just cycle?
         // For simplicity: Cycle to next or show simple prompt.
         // Implementing simple cycle for now or re-query
@@ -187,11 +187,10 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
         }
     }
 
-    static async _onRoll(event, target) {
-        const instance = Object.values(ui.windows).find(w => w.id === "hex-flower-navigator");
-        if (!instance || !instance.selectedId) return;
+    async _onRoll(event, target) {
+        if (!this.selectedId) return;
 
-        const result = await HexFlowerEngine.roll(instance.selectedId);
+        const result = await HexFlowerEngine.roll(this.selectedId);
         
         if (result) {
             // Chat is now handled here or optionally in Engine? 
@@ -207,7 +206,7 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
         }
     }
     
-    static async _onPlaceTile(event, target) {
+    async _onPlaceTile(event, target) {
         ui.notifications.info("Tile placement not fully re-implemented in beta.");
     }
 
