@@ -1,4 +1,5 @@
 import { generateSVG, getRegistry, saveRegistry, HEX_size } from "../utils.js";
+import { HexFlowerEngine } from "../engine.js";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const FLAG_SCOPE = "world"; // Keeping scope for compatibility
@@ -187,111 +188,23 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
     }
 
     static async _onRoll(event, target) {
-        const registry = getRegistry();
-        const entry = registry[this.selectedId];
-        if (!entry) return;
+        const instance = Object.values(ui.windows).find(w => w.id === "hex-flower-navigator");
+        if (!instance || !instance.selectedId) return;
 
-        // Game Logic
-        // 1. Roll
-        const roll = await new Roll("2d6").evaluate();
-        if (game.modules.get("dice-so-nice")?.active) {
-            game.dice3d.showForRoll(roll, game.user, true);
+        const result = await HexFlowerEngine.roll(instance.selectedId);
+        
+        if (result) {
+            // Chat is now handled here or optionally in Engine? 
+            // The plan said Engine handles Journal, but didn't explicitly say Engine handles Chat.
+            // Original Navigator handled Chat.
+            // Let's keep Chat here for now or delegate? 
+            // Current Engine.roll implementation implies it returns data.
+            // Let's Re-create the Chat message here using the result to ensure UI feedback.
+            
+           ChatMessage.create({
+                content: `<b>Hex Flower Navigation</b><br>Rolled ${result.total} (${result.dir})<br>Moved to: ${result.targetCell.title || 'Hex'} ${result.note}`
+            });
         }
-        const total = roll.total;
-
-        // 2. Rules
-        const rules = entry.navigationRules || [];
-        // Default rules if empty?
-        // ... (Assume rules exist or use defaults handled in Editor/Data)
-        
-        let rule = rules.find(r => total >= r.min && total <= r.max);
-        const dir = rule ? rule.dir : "SAME";
-        
-        // 3. Move
-        const state = await this._getState();
-        const currentCoord = state[this.selectedId] || {q:0, r:0}; // Default 0,0
-        
-        // Direction Deltas
-        const deltas = {
-            "N": {q:0, r:-1}, "NE": {q:1, r:-1}, "SE": {q:1, r:0},
-            "S": {q:0, r:1}, "SW": {q:-1, r:1}, "NW": {q:-1, r:0},
-            "SAME": {q:0, r:0}
-        };
-        const d = deltas[dir] || deltas["SAME"];
-        
-        const nextQ = currentCoord.q + d.q;
-        const nextR = currentCoord.r + d.r;
-        
-        // 4. Resolve Target (Edge Behavior)
-        const cells = entry.data.cells;
-        let targetCell = cells.find(c => c.coord.q === nextQ && c.coord.r === nextR);
-        let note = "";
-
-        if (!targetCell) {
-            // Edge Behavior
-            const strategy = entry.edgeBehavior || "stop";
-            if (strategy === "stop") {
-                targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
-                note = "(Blocked)";
-            } else if (strategy === "wrap") {
-                // Antipodal wrap (-q, -r)
-                targetCell = cells.find(c => c.coord.q === -nextQ && c.coord.r === -nextR);
-                note = "(Wrapped)";
-                if (!targetCell) {
-                     targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
-                     note = "(Blocked/Invalid Wrap)";
-                }
-            } else if (strategy === "rotateCW" || strategy === "rotateCCW") {
-                 // Hex Rotation from center (0,0)
-                 // s = -q - r
-                 const s = -nextQ - nextR;
-                 let rotQ, rotR;
-                 
-                 if (strategy === "rotateCW") {
-                     // CW: (q, r, s) -> (-r, -s, -q)
-                     rotQ = -nextR;
-                     rotR = -s; 
-                 } else {
-                     // CCW: (q, r, s) -> (-s, -q, -r)
-                     rotQ = -s;
-                     rotR = -nextQ;
-                 }
-                 
-                 targetCell = cells.find(c => c.coord.q === rotQ && c.coord.r === rotR);
-                 note = `(${strategy === 'rotateCW' ? 'Rotated CW' : 'Rotated CCW'})`;
-                 
-                 if (!targetCell) {
-                     targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
-                     note = "(Blocked Rotation)";
-                 }
-            } else if (strategy === "reflect") {
-                // Bounce back: Move in opposite direction
-                const opposites = { "N": "S", "NE": "SW", "SE": "NW", "S": "N", "SW": "NE", "NW": "SE", "SAME": "SAME" };
-                const opDir = opposites[dir] || "SAME";
-                const opD = deltas[opDir];
-                const opQ = currentCoord.q + opD.q;
-                const opR = currentCoord.r + opD.r;
-                
-                targetCell = cells.find(c => c.coord.q === opQ && c.coord.r === opR);
-                note = "(Reflected)";
-                
-                if (!targetCell) {
-                    // If even reflection is blocked (e.g. 1-cell flower), stay put
-                    targetCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
-                    note = "(Trapped)";
-                }
-            }
-        }
-        
-        if (!targetCell) return; // Should not happen if defaults exist
-        
-        // 5. Update
-        await this._updateState(targetCell.coord);
-        
-        // 6. Chat
-        ChatMessage.create({
-            content: `<b>Hex Flower Navigation</b><br>Rolled ${total} (${dir})<br>Moved to: ${targetCell.title || 'Hex'} ${note}`
-        });
     }
     
     static async _onPlaceTile(event, target) {

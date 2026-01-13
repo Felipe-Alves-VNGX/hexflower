@@ -38,6 +38,15 @@ A robust, fully integrated module that brings the power of **Hex Flower Game Eng
 - **Dice So Nice**: Visual 3D dice rolls.
 - **Tiles & Tagger**: Place hexes as tiles on the scene.
 
+### 🎮 API & Macros
+
+The module exposes a powerful API for macros and developers, allowing automated rolling and custom integrations.
+
+- **`game.hexFlower.roll(flowerId)`**: Roll on a specific Hex Flower programmatically.
+- **`game.hexFlower.engine`**: Access the core engine logic.
+
+[Review the full API Documentation here](docs/API.md).
+
 ---
 
 ## 📦 Installation

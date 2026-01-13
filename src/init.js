@@ -1,6 +1,7 @@
 import { HexFlowerManager } from "./apps/manager.js";
 import { HexFlowerNavigator } from "./apps/navigator.js";
 import { HexFlowerSetup } from "./setup.js";
+import { HexFlowerEngine } from "./engine.js";
 
 Hooks.on("init", () => {
     // Register Settings Menu
@@ -26,7 +27,9 @@ Hooks.on("init", () => {
         HexFlowerManager,
         HexFlowerNavigator,
         openManager: () => new HexFlowerManager().render(true),
-        openNavigator: () => new HexFlowerNavigator().render(true)
+        openNavigator: () => new HexFlowerNavigator().render(true),
+        engine: HexFlowerEngine,
+        roll: (flowerId, options) => HexFlowerEngine.roll(flowerId, options)
     };
     
     // Log

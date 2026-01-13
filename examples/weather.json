@@ -1,0 +1,169 @@
+{
+  "name": "Dynamic Weather",
+  "version": "1.0.0",
+  "edgeBehavior": "wrap",
+  "activeHex": { "q": 0, "r": 0, "s": 0 },
+  "navigationRules": [
+    { "min": 2, "max": 2, "dir": "N" },
+    { "min": 3, "max": 4, "dir": "NE" },
+    { "min": 5, "max": 6, "dir": "SE" },
+    { "min": 7, "max": 7, "dir": "SAME" },
+    { "min": 8, "max": 9, "dir": "S" },
+    { "min": 10, "max": 11, "dir": "SW" },
+    { "min": 12, "max": 12, "dir": "NW" }
+  ],
+  "cells": [
+    {
+      "coord": { "q": 0, "r": 0, "s": 0 },
+      "title": "Mild & Clear",
+      "description": "A pleasant day with gentle breezes and scattered clouds.",
+      "emoji": "☀️",
+      "color": "#87CEEB",
+      "bioma": "Temperate"
+    },
+    {
+      "coord": { "q": 0, "r": -1, "s": 1 },
+      "title": "Chilly Breeze",
+      "description": "Temperatures drop, requiring light layers.",
+      "emoji": "🍃",
+      "color": "#ADD8E6",
+      "bioma": "Cold"
+    },
+    {
+      "coord": { "q": 1, "r": -1, "s": 0 },
+      "title": "Cool & Dry",
+      "description": "Crisp air with very low humidity.",
+      "emoji": "🍂",
+      "color": "#E0FFFF",
+      "bioma": "Dry"
+    },
+    {
+      "coord": { "q": 1, "r": 0, "s": -1 },
+      "title": "Warm & Sunny",
+      "description": "Bright sun warming the land.",
+      "emoji": "🌤️",
+      "color": "#F0E68C",
+      "bioma": "Warm"
+    },
+    {
+      "coord": { "q": 0, "r": 1, "s": -1 },
+      "title": "Hot Day",
+      "description": "Heat rises, making travel tiring.",
+      "emoji": "🥵",
+      "color": "#FFA07A",
+      "bioma": "Hot"
+    },
+    {
+      "coord": { "q": -1, "r": 1, "s": 0 },
+      "title": "Humid Heat",
+      "description": "Sticky and oppressive heat with gray clouds.",
+      "emoji": "🌫️",
+      "color": "#D8BFD8",
+      "bioma": "Hot/Wet"
+    },
+    {
+      "coord": { "q": -1, "r": 0, "s": 1 },
+      "title": "Light Rain",
+      "description": "Persistent drizzle wets the ground.",
+      "emoji": "🌦️",
+      "color": "#B0C4DE",
+      "bioma": "Wet"
+    },
+    {
+      "coord": { "q": 0, "r": -2, "s": 2 },
+      "title": "Freezing Cold",
+      "description": "Water freezes. Frost covers the ground.",
+      "emoji": "❄️",
+      "color": "#F0F8FF",
+      "bioma": "Freezing"
+    },
+    {
+      "coord": { "q": 1, "r": -2, "s": 1 },
+      "title": "Cold Snap",
+      "description": "Sudden drop in temperature, biting winds.",
+      "emoji": "🌬️",
+      "color": "#B0E0E6",
+      "bioma": "Cold"
+    },
+    {
+      "coord": { "q": 2, "r": -2, "s": 0 },
+      "title": "Frosty Fog",
+      "description": "Thick, freezing fog reduces visibility.",
+      "emoji": "🌫️",
+      "color": "#E6E6FA",
+      "bioma": "Cold/Fog"
+    },
+    {
+      "coord": { "q": 2, "r": -1, "s": -1 },
+      "title": "Drought",
+      "description": "Parched earth, no clouds in sight.",
+      "emoji": "🌾",
+      "color": "#F5DEB3",
+      "bioma": "Arid"
+    },
+    {
+      "coord": { "q": 2, "r": 0, "s": -2 },
+      "title": "Heatwave",
+      "description": "Dangerous heat. Shade is mandatory.",
+      "emoji": "☀️",
+      "color": "#FF4500",
+      "bioma": "Extreme Heat"
+    },
+    {
+      "coord": { "q": 1, "r": 1, "s": -2 },
+      "title": "Scorching Sun",
+      "description": "The sun beats down mercilessly.",
+      "emoji": "🏜️",
+      "color": "#FF8C00",
+      "bioma": "Extreme Heat"
+    },
+    {
+      "coord": { "q": 0, "r": 2, "s": -2 },
+      "title": "Solar Flare",
+      "description": "Unnatural heat, blinding light.",
+      "emoji": "🌋",
+      "color": "#FF0000",
+      "bioma": "Extreme Heat"
+    },
+    {
+      "coord": { "q": -1, "r": 2, "s": -1 },
+      "title": "Tropical Storm",
+      "description": "High winds and heavy rain.",
+      "emoji": "🌀",
+      "color": "#4682B4",
+      "bioma": "Storm"
+    },
+    {
+      "coord": { "q": -2, "r": 2, "s": 0 },
+      "title": "Monsoon",
+      "description": "Torrential rain, potential flooding.",
+      "emoji": "🌊",
+      "color": "#1E90FF",
+      "bioma": "Storm"
+    },
+    {
+      "coord": { "q": -2, "r": 1, "s": 1 },
+      "title": "Thunderstorm",
+      "description": "Lightning strikes and thunder rolls.",
+      "emoji": "⚡",
+      "color": "#483D8B",
+      "bioma": "Storm"
+    },
+    {
+      "coord": { "q": -2, "r": 0, "s": 2 },
+      "title": "Heavy Downpour",
+      "description": "Visibilty low due to thick rain.",
+      "emoji": "🌧️",
+      "color": "#6495ED",
+      "bioma": "Wet"
+    },
+    {
+      "coord": { "q": -1, "r": -1, "s": 2 },
+      "title": "Sleet/Snow",
+      "description": "Icy precipitation makes travel slippery.",
+      "emoji": "🌨️",
+      "color": "#E0FFFF",
+      "bioma": "Cold/Wet"
+    }
+  ]
+}
