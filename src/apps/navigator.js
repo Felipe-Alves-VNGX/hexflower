@@ -188,21 +188,29 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
     }
 
     async _onRoll(event, target) {
-        if (!this.selectedId) return;
+        console.log("Hex Flower Navigator | _onRoll triggered", this);
+        if (!this.selectedId) {
+            console.warn("Hex Flower Navigator | No flower selected.");
+            return;
+        }
 
-        const result = await HexFlowerEngine.roll(this.selectedId);
-        
-        if (result) {
-            // Chat is now handled here or optionally in Engine? 
-            // The plan said Engine handles Journal, but didn't explicitly say Engine handles Chat.
-            // Original Navigator handled Chat.
-            // Let's keep Chat here for now or delegate? 
-            // Current Engine.roll implementation implies it returns data.
-            // Let's Re-create the Chat message here using the result to ensure UI feedback.
+        try {
+            const result = await HexFlowerEngine.roll(this.selectedId);
+            console.log("Hex Flower Navigator | Roll Result:", result);
             
-           ChatMessage.create({
-                content: `<b>Hex Flower Navigation</b><br>Rolled ${result.total} (${result.dir})<br>Moved to: ${result.targetCell.title || 'Hex'} ${result.note}`
-            });
+            if (result) {
+               const title = result.targetCell?.title || 'Unknown Hex';
+               const note = result.note || '';
+               const dir = result.dir || '?';
+               const total = result.total || 0;
+
+               await ChatMessage.create({
+                    content: `<b>Hex Flower Navigation</b><br>Rolled <strong>${total}</strong> (${dir})<br>Moved to: <strong>${title}</strong> ${note}`
+                });
+            }
+        } catch (err) {
+            console.error("Hex Flower Navigator | Roll Error:", err);
+            ui.notifications.error("Error rolling Hex Flower. Check console.");
         }
     }
     
