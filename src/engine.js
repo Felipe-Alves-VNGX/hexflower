@@ -168,7 +168,16 @@ export class HexFlowerEngine {
         }
 
         // Generate Content
-        const timestamp = new Date().toLocaleTimeString();
+
+        const timestamp = new Date().toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        
         const cellName = result.targetCell.title || "Hex";
         const icon = result.targetCell.emoji || "";
         const note = result.note ? `<span style="color:coral">${result.note}</span>` : "";

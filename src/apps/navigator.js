@@ -205,7 +205,10 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
                const total = result.total || 0;
 
                await ChatMessage.create({
-                    content: `<b>Hex Flower Navigation</b><br>Rolled <strong>${total}</strong> (${dir})<br>Moved to: <strong>${title}</strong> ${note}`
+                    content: `<b>Hex Flower Navigation</b><br>Rolled <strong>${total}</strong> (${dir})<br>Moved to: <strong>${title}</strong> ${note}`,
+                    speaker: ChatMessage.getSpeaker(),
+                    author: game.user.id,
+                    whisper: ChatMessage.getWhisperRecipients("GM")
                 });
             }
         } catch (err) {
