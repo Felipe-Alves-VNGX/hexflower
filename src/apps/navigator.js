@@ -25,9 +25,9 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
             icon: "fas fa-compass"
         },
         actions: {
-            roll: "_onRoll",
-            back: "_onBack",
-            placeTile: "_onPlaceTile"
+            roll: HexFlowerNavigator.prototype._onRoll,
+            back: HexFlowerNavigator.prototype._onBack,
+            placeTile: HexFlowerNavigator.prototype._onPlaceTile
         }
     };
 
