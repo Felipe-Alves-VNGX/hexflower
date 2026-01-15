@@ -90,6 +90,30 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
              if (data.description) info += `<p>${data.description}</p>`;
              if (data.bioma) info += `<p><strong>Type:</strong> ${data.bioma}</p>`;
              info += `<p style="color:#777; font-size:0.9em; margin-top:10px;">Coordinates: (${data.coord.q}, ${data.coord.r})</p>`;
+
+             // Render Tags
+             if (data.tags && Array.isArray(data.tags) && data.tags.length > 0) {
+                 info += `<div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:4px;">`;
+                 data.tags.forEach(tag => {
+                     info += `<span style="background:#334; padding:2px 6px; border-radius:4px; border:1px solid #556; font-size:0.8em;">${tag}</span>`;
+                 });
+                 info += `</div>`;
+             }
+
+             // Render Properties
+             if (data.properties && Object.keys(data.properties).length > 0) {
+                 info += `<div style="margin-top:10px; padding-top:5px; border-top:1px solid #444; font-size:0.9em;">`;
+                 info += `<strong>Properties:</strong>`;
+                 info += `<ul style="margin:5px 0 0 15px; padding:0;">`;
+                 for (const [key, val] of Object.entries(data.properties)) {
+                     // Pretty print objects/arrays if nested
+                     let valStr = val;
+                     if (typeof val === 'object') valStr = JSON.stringify(val);
+                     info += `<li><strong>${key}:</strong> ${valStr}</li>`;
+                 }
+                 info += `</ul></div>`;
+             }
+
              info += `</div>`;
              infoPanel.innerHTML = info;
         };

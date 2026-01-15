@@ -190,9 +190,26 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
       rotateCCW: "Rotate Anti-Clockwise (60°)"
     };
 
+    // Prepare Props Strings
+    let tagsString = "";
+    let propertiesString = "";
+    if (selectedCell) {
+        if (Array.isArray(selectedCell.tags)) {
+            tagsString = selectedCell.tags.join(", ");
+        }
+        if (selectedCell.properties) {
+            propertiesString = JSON.stringify(selectedCell.properties, null, 2);
+        } else {
+            // Default empty object
+            propertiesString = "{\n}";
+        }
+    }
+
     return {
       name: draft.name,
       selectedCell,
+      tagsString,
+      propertiesString,
       svg,
       navigationRules: draft.navigationRules,
       edgeBehavior: draft.edgeBehavior,
@@ -268,7 +285,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
     // Bind Prop Inputs Changes manually
     const inputs = this.element.querySelectorAll(
-      ".hex-input, .hex-input-small, input[type='color']"
+      ".hex-input, .hex-input-small, input[type='color'], textarea.hex-input"
     );
     inputs.forEach((input) => {
       input.addEventListener("change", (ev) => {
@@ -287,7 +304,22 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
         const cell =
           this.editorState.draft.data.cells[this.editorState.selectedHexIndex];
         if (cell) {
-          cell[field] = val;
+            if (field === "tags") {
+                // Parse CSV to Array
+                cell.tags = val.split(",").map(s => s.trim()).filter(s => s.length > 0);
+            } else if (field === "properties") {
+                // Parse JSON
+                try {
+                    cell.properties = JSON.parse(val);
+                } catch (e) {
+                    ui.notifications.warn("Invalid Properties JSON");
+                    // Don't update cell prop if invalid, just let it sit in UI or revert? 
+                    // Current simplified flow: we just warn. Re-rendering might clear it if we called render()
+                }
+            } else {
+                cell[field] = val;
+            }
+          
           // If visual prop, trigger re-render
           if (["color", "emoji", "title", "name"].includes(field))
             this.render();
