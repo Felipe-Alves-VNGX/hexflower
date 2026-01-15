@@ -21,9 +21,9 @@ export class HexFlowerManager extends HandlebarsApplicationMixin(
       icon: "fas fa-seedling",
     },
     actions: {
-      create: HexFlowerManager._onCreate,
-      edit: HexFlowerManager._onEdit,
-      delete: HexFlowerManager._onDelete,
+      create: "_onCreate",
+      edit: "_onEdit",
+      delete: "_onDelete",
     },
   };
 
@@ -42,16 +42,16 @@ export class HexFlowerManager extends HandlebarsApplicationMixin(
     return { flowers };
   }
 
-  static async _onCreate(event, target) {
+  async _onCreate(event, target) {
     new HexFlowerEditor().render(true);
   }
 
-  static async _onEdit(event, target) {
+  async _onEdit(event, target) {
     const id = target.dataset.id;
     new HexFlowerEditor({ flowerId: id }).render(true);
   }
 
-  static async _onDelete(event, target) {
+  async _onDelete(event, target) {
     const id = target.dataset.id;
     const registry = getRegistry();
     const entry = registry[id];
@@ -96,15 +96,15 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
       icon: "fas fa-edit",
     },
     actions: {
-      addHex: HexFlowerEditor._onAddHex,
-      deleteHex: HexFlowerEditor._onDeleteHex,
-      addRule: HexFlowerEditor._onAddRule,
-      deleteRule: HexFlowerEditor._onDeleteRule,
-      parseJson: HexFlowerEditor._onParseJson,
-      copyJson: HexFlowerEditor._onCopyJson,
+      addHex: "_onAddHex",
+      deleteHex: "_onDeleteHex",
+      addRule: "_onAddRule",
+      deleteRule: "_onDeleteRule",
+      parseJson: "_onParseJson",
+      copyJson: "_onCopyJson",
     },
     form: {
-      handler: HexFlowerEditor._onSubmit,
+      handler: "_onSubmit",
       submitOnChange: false,
       closeOnSubmit: false,
     },
@@ -349,7 +349,9 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /* Actions */
 
-  static async _onAddHex(event, target) {
+  /* Actions */
+
+  async _onAddHex(event, target) {
     // Find free spot
     // Simple logic: neighbor of selected or first
     const cells = this.editorState.draft.data.cells;
@@ -394,7 +396,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
-  static async _onDeleteHex(event, target) {
+  async _onDeleteHex(event, target) {
     if (this.editorState.selectedHexIndex >= 0) {
       this.editorState.draft.data.cells.splice(
         this.editorState.selectedHexIndex,
@@ -405,7 +407,7 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   }
 
-  static async _onAddRule(event, target) {
+  async _onAddRule(event, target) {
     this.editorState.draft.navigationRules.push({
       min: 0,
       max: 0,
@@ -414,13 +416,13 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
-  static async _onDeleteRule(event, target) {
+  async _onDeleteRule(event, target) {
     const idx = parseInt(target.dataset.idx);
     this.editorState.draft.navigationRules.splice(idx, 1);
     this.render();
   }
 
-  static async _onParseJson(event, target) {
+  async _onParseJson(event, target) {
     const textarea = this.element.querySelector("textarea[name='jsonInput']");
     try {
       const parsed = JSON.parse(textarea.value);
@@ -441,14 +443,14 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   }
 
-  static async _onCopyJson(event, target) {
+  async _onCopyJson(event, target) {
     const json = this.element.querySelector("textarea[name='jsonInput']").value;
     navigator.clipboard
       .writeText(json)
       .then(() => ui.notifications.info("Copied!"));
   }
 
-  static async _onSubmit(event, form, formData) {
+  async _onSubmit(event, form, formData) {
     await this._save(formData.object);
   }
 
