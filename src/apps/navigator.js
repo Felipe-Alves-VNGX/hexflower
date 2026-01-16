@@ -151,8 +151,15 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
         // Register Hook if not already
         if (!this._hookId) {
             this._hookId = Hooks.on("updateUser", (user, changes) => {
+                 // Only render if:
+                 // 1. It's the current user
+                 // 2. The hex_flower_state flag changed
+                 // 3. The specific flower we are viewing was updated
                  if (user.id === game.user.id && changes.flags?.[FLAG_SCOPE]?.[FLAG_STATE]) {
-                     this.render();
+                     const newState = changes.flags[FLAG_SCOPE][FLAG_STATE];
+                     if (newState && this.selectedId in newState) {
+                        this.render();
+                     }
                  }
             });
         }
@@ -170,6 +177,14 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
     /*  Actions                                    */
     /* ------------------------------------------- */
 
+    /* ------------------------------------------- */
+    /*  Actions                                    */
+    /* ------------------------------------------- */
+
+    /**
+     * Handles click on a hex cell. Triggers a Dialog to confirm party movement.
+     * @param {Event} event 
+     */
     async _onHexClick(event) {
         const data = JSON.parse(event.currentTarget.dataset.cell);
         
@@ -211,6 +226,10 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
         }
     }
 
+    /**
+     * Triggers a random navigation roll on the current flower.
+     * Calculates result via Engine and updates state.
+     */
     async _onRoll(event, target) {
         console.log("Hex Flower Navigator | _onRoll triggered", this);
         if (!this.selectedId) {
@@ -250,6 +269,10 @@ export class HexFlowerNavigator extends HandlebarsApplicationMixin(ApplicationV2
         return game.user.getFlag(FLAG_SCOPE, FLAG_STATE) || {};
     }
 
+    /**
+     * Updates the party position for the current flower in User flags.
+     * @param {object} newCoord - {q, r}
+     */
     async _updateState(newCoord) {
         const state = await this._getState();
         state[this.selectedId] = newCoord;

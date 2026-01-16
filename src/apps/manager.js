@@ -311,10 +311,10 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
                 // Parse JSON
                 try {
                     cell.properties = JSON.parse(val);
+                    target.style.borderColor = ""; // Reset
                 } catch (e) {
                     ui.notifications.warn("Invalid Properties JSON");
-                    // Don't update cell prop if invalid, just let it sit in UI or revert? 
-                    // Current simplified flow: we just warn. Re-rendering might clear it if we called render()
+                    target.style.borderColor = "red";
                 }
             } else {
                 cell[field] = val;
@@ -351,6 +351,12 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /* Actions */
 
+  /**
+   * Adds a new hex cell to the flower.
+   * Attempts to place it adjacent to the currently selected hex.
+   * @param {Event} event 
+   * @param {HTMLElement} target 
+   */
   async _onAddHex(event, target) {
     // Find free spot
     // Simple logic: neighbor of selected or first
@@ -396,6 +402,9 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
+  /**
+   * Deletes the currently selected hex cell.
+   */
   async _onDeleteHex(event, target) {
     if (this.editorState.selectedHexIndex >= 0) {
       this.editorState.draft.data.cells.splice(
@@ -422,6 +431,9 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
+  /**
+   * Parses JSON input from the text area and applies it to the draft.
+   */
   async _onParseJson(event, target) {
     const textarea = this.element.querySelector("textarea[name='jsonInput']");
     try {
@@ -454,6 +466,10 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     await this._save(formData.object);
   }
 
+  /**
+   * Saves the current draft to the global registry.
+   * @param {object} data - Optional form data override
+   */
   async _save(data = null) {
     const draft = this.editorState.draft;
     // Update name from formData if present, as it is a main field
