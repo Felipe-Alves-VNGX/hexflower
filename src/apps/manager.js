@@ -21,9 +21,9 @@ export class HexFlowerManager extends HandlebarsApplicationMixin(
       icon: "fas fa-seedling",
     },
     actions: {
-      create: "_onCreate",
-      edit: "_onEdit",
-      delete: "_onDelete",
+      create: HexFlowerManager.prototype._onCreate,
+      edit: HexFlowerManager.prototype._onEdit,
+      delete: HexFlowerManager.prototype._onDelete,
     },
   };
 
@@ -96,15 +96,15 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
       icon: "fas fa-edit",
     },
     actions: {
-      addHex: "_onAddHex",
-      deleteHex: "_onDeleteHex",
-      addRule: "_onAddRule",
-      deleteRule: "_onDeleteRule",
-      parseJson: "_onParseJson",
-      copyJson: "_onCopyJson",
+      addHex: HexFlowerEditor.prototype._onAddHex,
+      deleteHex: HexFlowerEditor.prototype._onDeleteHex,
+      addRule: HexFlowerEditor.prototype._onAddRule,
+      deleteRule: HexFlowerEditor.prototype._onDeleteRule,
+      parseJson: HexFlowerEditor.prototype._onParseJson,
+      copyJson: HexFlowerEditor.prototype._onCopyJson,
     },
     form: {
-      handler: "_onSubmit",
+      handler: HexFlowerEditor.prototype._onSubmit,
       submitOnChange: false,
       closeOnSubmit: false,
     },
