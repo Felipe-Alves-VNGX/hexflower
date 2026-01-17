@@ -17,6 +17,7 @@ A robust, fully integrated module that brings the power of **Hex Flower Game Eng
 - **Drag-and-Drop Creation**: Build your flowers intuitively.
 - **Split-Screen Layout**: Edit visual layout and properties side-by-side.
 - **Live Preview**: See changes instantly as you design.
+- **Advanced Metadata**: Support for **Tags** and custom **JSON Properties**.
 
 ### 🧭 Navigator
 

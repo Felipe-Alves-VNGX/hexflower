@@ -62,8 +62,10 @@ Cada objeto célula aceita propriedades livres, mas as seguintes são processada
 | `bioma`           | Exibido como "Type" no painel. Útil para categorização.                                              |
 | `emoji`           | Renderizado no centro do hexágono no SVG.                                                            |
 | `color`           | Cor de fundo (`#RRGGBB`).                                                                            |
+| `tags`            | Lista de strings (ex: `["danger", "cold"]`). Exibido como tags no painel.                            |
+| `properties`      | Objeto JSON livre (ex: `{ "difficulty": 5 }`). Exibido como lista de propriedades.                   |
 
-> **Campos Extras**: Quaisquer outros campos (ex: `encounter_type`, `tags`) são preservados no JSON e acessíveis via scripts, mas ignorados pela UI padrão.
+> **Campos Extras**: Quaisquer outros campos não listados aqui são preservados no JSON e acessíveis via scripts, mas ignorados pela UI padrão.
 
 ### 4. Coordenadas (`coord`) e Orientação
 
@@ -111,7 +113,9 @@ O sistema utiliza coordenadas cúbicas padrão.
       "description": "Luz do sol penetra aqui.",
       "bioma": "Safe",
       "color": "#90EE90",
-      "emoji": "🌳"
+      "emoji": "🌳",
+      "tags": ["seguro", "dia"],
+      "properties": { "healRate": 1 }
     },
     {
       "coord": { "q": 0, "r": -1, "s": 1 },
