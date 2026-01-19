@@ -1,0 +1,80 @@
+{
+  "name": "Volcano Eruption Tracker",
+  "version": "2.0.0",
+  "hexClass": "II",
+  "edgeBehavior": "stop",
+  "activeHex": { "q": 0, "r": 0, "s": 0 },
+  "turn": {
+    "current": 0,
+    "limit": 12
+  },
+  "navigationRules": [
+    { "min": 2, "max": 3, "dir": "N" },
+    { "min": 4, "max": 5, "dir": "NE" },
+    { "min": 6, "max": 8, "dir": "SAME" },
+    { "min": 9, "max": 10, "dir": "NW" },
+    { "min": 11, "max": 12, "dir": "N" }
+  ],
+  "tags": ["minigame", "terminal-event", "volcano"],
+  "cells": [
+    {
+      "coord": { "q": 0, "r": 0, "s": 0 },
+      "title": "Calm",
+      "description": "The volcano is quiet. Birds chirp in the distance.",
+      "emoji": "🌋",
+      "color": "#90EE90",
+      "bioma": "Safe"
+    },
+    {
+      "coord": { "q": 0, "r": -1, "s": 1 },
+      "title": "Rumbles",
+      "description": "You feel slight tremors beneath your feet.",
+      "emoji": "🔊",
+      "color": "#FFE4B5",
+      "bioma": "Warning"
+    },
+    {
+      "coord": { "q": 1, "r": -1, "s": 0 },
+      "title": "Tremors",
+      "description": "The ground shakes more violently. Rocks fall.",
+      "emoji": "💥",
+      "color": "#FFA07A",
+      "bioma": "Danger"
+    },
+    {
+      "coord": { "q": 0, "r": -2, "s": 2 },
+      "title": "ERUPTION!",
+      "description": "The volcano explodes! Lava flows everywhere. Time to escape!",
+      "emoji": "🌋",
+      "color": "#FF0000",
+      "bioma": "Terminal",
+      "isTerminal": true,
+      "terminalType": "loss",
+      "onEnter": "VolcanoEruptionMacro"
+    },
+    {
+      "coord": { "q": -1, "r": 0, "s": 1 },
+      "title": "Ash Plume",
+      "description": "Ash begins to fall from the sky.",
+      "emoji": "☁️",
+      "color": "#D3D3D3",
+      "bioma": "Warning"
+    },
+    {
+      "coord": { "q": 1, "r": 0, "s": -1 },
+      "title": "Lava Flow",
+      "description": "Small streams of lava begin to emerge.",
+      "emoji": "🔥",
+      "color": "#FF4500",
+      "bioma": "Danger"
+    },
+    {
+      "coord": { "q": 0, "r": 1, "s": -1 },
+      "title": "Quakes",
+      "description": "Violent earthquakes shake the island.",
+      "emoji": "💢",
+      "color": "#FF6347",
+      "bioma": "Danger"
+    }
+  ]
+}

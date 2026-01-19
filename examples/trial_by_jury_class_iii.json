@@ -1,0 +1,132 @@
+{
+  "name": "Trial by Jury",
+  "version": "2.0.0",
+  "hexClass": "III",
+  "edgeBehavior": "reflect",
+  "activeHex": { "q": 0, "r": 0, "s": 0 },
+  "turn": {
+    "current": 0,
+    "limit": 10
+  },
+  "activeRuleSet": "innocent",
+  "situationalRules": [
+    {
+      "id": "innocent",
+      "name": "PCs are Actually Innocent",
+      "description": "Navigation biased toward the 'Innocent' verdict",
+      "rules": [
+        { "min": 2, "max": 3, "dir": "N" },
+        { "min": 4, "max": 5, "dir": "NE" },
+        { "min": 6, "max": 8, "dir": "SAME" },
+        { "min": 9, "max": 10, "dir": "N" },
+        { "min": 11, "max": 12, "dir": "N" }
+      ]
+    },
+    {
+      "id": "guilty",
+      "name": "PCs are Actually Guilty",
+      "description": "Navigation biased toward the 'Guilty' verdict",
+      "rules": [
+        { "min": 2, "max": 3, "dir": "S" },
+        { "min": 4, "max": 5, "dir": "S" },
+        { "min": 6, "max": 8, "dir": "SAME" },
+        { "min": 9, "max": 10, "dir": "SE" },
+        { "min": 11, "max": 12, "dir": "S" }
+      ]
+    }
+  ],
+  "gamePoints": {
+    "name": "Legal Points",
+    "current": 3,
+    "max": 5
+  },
+  "tags": ["minigame", "two-terminals", "social"],
+  "cells": [
+    {
+      "coord": { "q": 0, "r": 0, "s": 0 },
+      "title": "Trial Begins",
+      "description": "The judge calls the court to order. Your fate hangs in the balance.",
+      "emoji": "⚖️",
+      "color": "#D3D3D3",
+      "bioma": "Neutral"
+    },
+    {
+      "coord": { "q": 0, "r": -1, "s": 1 },
+      "title": "Evidence Favors You",
+      "description": "The jury seems sympathetic to your case.",
+      "emoji": "📜",
+      "color": "#ADD8E6",
+      "bioma": "Favorable"
+    },
+    {
+      "coord": { "q": 1, "r": -1, "s": 0 },
+      "title": "Strong Defense",
+      "description": "Your lawyer presents compelling arguments.",
+      "emoji": "🛡️",
+      "color": "#87CEEB",
+      "bioma": "Favorable"
+    },
+    {
+      "coord": { "q": 0, "r": -2, "s": 2 },
+      "title": "INNOCENT!",
+      "description": "The jury finds you not guilty! You are free to go.",
+      "emoji": "🎉",
+      "color": "#00FF00",
+      "bioma": "Victory",
+      "isTerminal": true,
+      "terminalType": "win",
+      "onEnter": "InnocentVerdictMacro"
+    },
+    {
+      "coord": { "q": -1, "r": 0, "s": 1 },
+      "title": "Damning Testimony",
+      "description": "A witness speaks against you convincingly.",
+      "emoji": "👤",
+      "color": "#FFB6C1",
+      "bioma": "Unfavorable"
+    },
+    {
+      "coord": { "q": 1, "r": 0, "s": -1 },
+      "title": "Character Witness",
+      "description": "A friend vouches for your good character.",
+      "emoji": "🤝",
+      "color": "#B0E0E6",
+      "bioma": "Favorable"
+    },
+    {
+      "coord": { "q": 0, "r": 1, "s": -1 },
+      "title": "Prosecution Scores",
+      "description": "The prosecutor makes a strong point.",
+      "emoji": "⚔️",
+      "color": "#FFA07A",
+      "bioma": "Unfavorable"
+    },
+    {
+      "coord": { "q": 0, "r": 2, "s": -2 },
+      "title": "GUILTY!",
+      "description": "The jury finds you guilty. You are sentenced.",
+      "emoji": "⛓️",
+      "color": "#FF0000",
+      "bioma": "Defeat",
+      "isTerminal": true,
+      "terminalType": "loss",
+      "onEnter": "GuiltyVerdictMacro"
+    },
+    {
+      "coord": { "q": -1, "r": 1, "s": 0 },
+      "title": "Jury Deliberates",
+      "description": "The jury whispers among themselves.",
+      "emoji": "🗣️",
+      "color": "#D8BFD8",
+      "bioma": "Neutral"
+    },
+    {
+      "coord": { "q": 1, "r": 1, "s": -2 },
+      "title": "Circumstantial Evidence",
+      "description": "The evidence is unclear.",
+      "emoji": "❓",
+      "color": "#F0E68C",
+      "bioma": "Neutral"
+    }
+  ]
+}
