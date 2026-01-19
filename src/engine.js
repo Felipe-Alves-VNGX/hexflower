@@ -120,11 +120,59 @@ export class HexFlowerEngine {
             targetCell = { coord: currentCoord, title: "Unknown" }; 
         }
 
-        // 5. Update State
+        // 5. Execute onExit Hook (before moving)
+        const currentCell = cells.find(c => c.coord.q === currentCoord.q && c.coord.r === currentCoord.r);
+        if (currentCell && currentCell.onExit) {
+            await this.executeHook(currentCell.onExit, {
+                flowerId,
+                flowerName: entry.name,
+                cell: currentCell,
+                event: 'exit'
+            });
+        }
+
+        // 6. Update State
         state[flowerId] = targetCell.coord;
         await game.user.setFlag(FLAG_SCOPE, FLAG_STATE, state);
 
-        // 6. Return Result
+        // 7. Execute onEnter Hook (after moving)
+        if (targetCell && targetCell.onEnter) {
+            await this.executeHook(targetCell.onEnter, {
+                flowerId,
+                flowerName: entry.name,
+                cell: targetCell,
+                event: 'enter'
+            });
+        }
+
+        // 8. Increment Turn Counter
+        if (entry.data.turn) {
+            entry.data.turn.current = (entry.data.turn.current || 0) + 1;
+            await saveRegistry(registry);
+
+            // Check Turn Limit
+            if (entry.data.turn.limit && entry.data.turn.current >= entry.data.turn.limit) {
+                await this.handleTimeOut({
+                    flowerId,
+                    flowerName: entry.name,
+                    turn: entry.data.turn.current,
+                    limit: entry.data.turn.limit
+                });
+            }
+        }
+
+        // 9. Check Terminal Event
+        if (targetCell && targetCell.isTerminal) {
+            await this.handleTerminalEvent({
+                flowerId,
+                flowerName: entry.name,
+                cell: targetCell,
+                terminalType: targetCell.terminalType || 'neutral',
+                turn: entry.data.turn ? entry.data.turn.current : null
+            });
+        }
+
+        // 10. Return Result
         const result = {
             total,
             dir,
@@ -135,10 +183,83 @@ export class HexFlowerEngine {
             note
         };
 
-        // 7. Log to Journal
+        // 11. Log to Journal
         await this.logToJournal(entry, result);
 
         return result;
+    }
+
+    /**
+     * Executes a hook (macro) with context data.
+     * @param {string} macroId - The ID of the macro to execute.
+     * @param {object} context - Context data to pass to the macro.
+     */
+    static async executeHook(macroId, context) {
+        const macro = game.macros.get(macroId);
+        if (!macro) {
+            console.warn(`Hex Flower Engine | Macro "${macroId}" not found for hook.`);
+            return;
+        }
+
+        try {
+            await macro.execute(context);
+        } catch (error) {
+            console.error(`Hex Flower Engine | Error executing hook macro "${macro.name}":`, error);
+        }
+    }
+
+    /**
+     * Handles terminal event (game end).
+     * @param {object} data - Terminal event data.
+     */
+    static async handleTerminalEvent(data) {
+        // Call Foundry Hook
+        Hooks.callAll("hexFlowerTerminalEvent", data);
+
+        // Post to Chat
+        const typeEmoji = {
+            'win': '🎉',
+            'loss': '💀',
+            'neutral': '🏁'
+        };
+        const emoji = typeEmoji[data.terminalType] || '🏁';
+        
+        const content = `
+            <div class="hex-flower-terminal" style="border: 2px solid #00e6cc; padding: 10px; border-radius: 5px; background: rgba(0,230,204,0.1);">
+                <h3>${emoji} Terminal Event: ${data.flowerName}</h3>
+                <p><strong>Hex:</strong> ${data.cell.title || 'Unknown'}</p>
+                <p><strong>Type:</strong> ${data.terminalType}</p>
+                ${data.turn ? `<p><strong>Turn:</strong> ${data.turn}</p>` : ''}
+            </div>
+        `;
+        
+        await ChatMessage.create({
+            content,
+            speaker: { alias: "Hex Flower Engine" }
+        });
+    }
+
+    /**
+     * Handles turn limit timeout.
+     * @param {object} data - Timeout data.
+     */
+    static async handleTimeOut(data) {
+        // Call Foundry Hook
+        Hooks.callAll("hexFlowerTimeOut", data);
+
+        // Post to Chat
+        const content = `
+            <div class="hex-flower-timeout" style="border: 2px solid #ff6b6b; padding: 10px; border-radius: 5px; background: rgba(255,107,107,0.1);">
+                <h3>⏱️ Time's Up: ${data.flowerName}</h3>
+                <p>The game has reached its turn limit.</p>
+                <p><strong>Turns:</strong> ${data.turn} / ${data.limit}</p>
+            </div>
+        `;
+        
+        await ChatMessage.create({
+            content,
+            speaker: { alias: "Hex Flower Engine" }
+        });
     }
 
     /**

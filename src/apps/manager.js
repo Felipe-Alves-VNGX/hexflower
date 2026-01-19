@@ -272,14 +272,25 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
 
     // Bind Hex Clicks
     this.element.querySelectorAll(".hex-cell").forEach((el) => {
-      el.addEventListener("click", (ev) => {
+      el.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
         const q = parseInt(ev.currentTarget.dataset.q);
         const r = parseInt(ev.currentTarget.dataset.r);
         const idx = this.editorState.draft.data.cells.findIndex(
           (c) => c.coord.q === q && c.coord.r === r
         );
-        this.editorState.selectedHexIndex = idx;
-        this.render(); // Selection change requires re-render for props panel
+        if (idx !== this.editorState.selectedHexIndex) {
+          this.editorState.selectedHexIndex = idx;
+          // Use requestAnimationFrame to avoid render conflicts
+          requestAnimationFrame(() => {
+            try {
+              this.render();
+            } catch (error) {
+              console.error("Hex Flower Editor | Error rendering after hex selection:", error);
+            }
+          });
+        }
       });
     });
 
@@ -289,8 +300,24 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
     );
     inputs.forEach((input) => {
       input.addEventListener("change", (ev) => {
-        this._updateDraftFromInput(ev.target);
+        ev.preventDefault();
+        try {
+          this._updateDraftFromInput(ev.target);
+        } catch (error) {
+          console.error("Hex Flower Editor | Error updating draft from input:", error);
+          ui.notifications.error("Failed to update field");
+        }
       });
+      // Also bind input event for immediate feedback on text fields
+      if (input.type === "text" || input.tagName === "TEXTAREA") {
+        input.addEventListener("input", (ev) => {
+          try {
+            this._updateDraftFromInput(ev.target);
+          } catch (error) {
+            // Silent fail for input events
+          }
+        });
+      }
     });
   }
 
@@ -321,8 +348,15 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
             }
           
           // If visual prop, trigger re-render
-          if (["color", "emoji", "title", "name"].includes(field))
-            this.render();
+          if (["color", "emoji", "title", "name"].includes(field)) {
+            requestAnimationFrame(() => {
+              try {
+                this.render();
+              } catch (error) {
+                console.error("Hex Flower Editor | Error rendering after visual prop change:", error);
+              }
+            });
+          }
         }
       }
     } else if (target.closest(".tab[data-tab='rules']")) {
@@ -406,13 +440,27 @@ export class HexFlowerEditor extends HandlebarsApplicationMixin(ApplicationV2) {
    * Deletes the currently selected hex cell.
    */
   async _onDeleteHex(event, target) {
-    if (this.editorState.selectedHexIndex >= 0) {
+    if (this.editorState.selectedHexIndex < 0) {
+      ui.notifications.warn("No hex selected to delete");
+      return;
+    }
+
+    const cell = this.editorState.draft.data.cells[this.editorState.selectedHexIndex];
+    const cellName = cell?.title || cell?.name || "this hex";
+
+    const confirm = await Dialog.confirm({
+      title: "Delete Hex?",
+      content: `<p>Are you sure you want to delete <strong>${cellName}</strong>?</p>`,
+    });
+
+    if (confirm) {
       this.editorState.draft.data.cells.splice(
         this.editorState.selectedHexIndex,
         1
       );
       this.editorState.selectedHexIndex = -1;
       this.render();
+      ui.notifications.info(`Deleted ${cellName}`);
     }
   }
 
