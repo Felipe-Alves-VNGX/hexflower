@@ -1,85 +1,78 @@
-# Guia Técnico: JSON do Hex Flower Engine
+# Guia Técnico: JSON do Hex Flower Engine (v2)
 
-Este documento detalha o formato JSON para importação de Hexflowers no Foundry VTT.
-Este guia foi revisado tecnicamente para garantir compatibilidade com a versão atual do módulo.
+Este documento detalha o formato JSON para importação de Hexflowers no Foundry VTT, incluindo as funcionalidades avançadas para minigames.
 
-## Resumo dos Campos
+## 1. Estrutura Principal
 
-| Campo             | Obrigatório? | Default (se omitido) | Observações                                               |
-| :---------------- | :----------- | :------------------- | :-------------------------------------------------------- |
-| `cells`           | **Sim**      | -                    | Lista de hexágonos. Se vazio, o grid não existe.          |
-| `name`            | Não          | "New Hex Flower"     | Nome exibido no navegador e gerenciador.                  |
-| `version`         | Não          | -                    | Metadado. Não afeta o funcionamento.                      |
-| `edgeBehavior`    | Não          | "stop"               | Define o que acontece nas bordas.                         |
-| `navigationRules` | Não          | "Stay" (Ficar)       | Se vazio, o token não se moverá automaticamente ao rolar. |
-| `activeHex`       | Não          | `{q:0,r:0,s:0}`      | Posição inicial do grupo.                                 |
-| `partyActorId`    | Não          | -                    | ID do ator (Foundry ID) usado para o ícone do grupo.      |
+### 1.1 Campos Principais
 
-## Detalhamento Técnico
+| Campo | Obrigatório? | Default | Descrição |
+| :--- | :--- | :--- | :--- |
+| `cells` | **Sim** | - | Lista de hexágonos. Se vazio, o grid não existe. |
+| `name` | Não | "New Hex Flower" | Nome exibido no navegador e gerenciador. |
+| `version` | Não | - | Metadado. Não afeta o funcionamento. |
+| `edgeBehavior` | Não | "stop" | Comportamento nas bordas do grid. |
+| `navigationRules` | Não | "Stay" | Regras de navegação padrão. |
+| `activeHex` | Não | `{q:0,r:0,s:0}` | Posição inicial do grupo. |
+| `partyActorId` | Não | - | ID do ator (Foundry ID) para o ícone do grupo. |
+| `tags` | Não | `[]` | Lista de strings para organização. |
 
-### 1. Comportamento de Borda (`edgeBehavior`)
+### 1.2 Campos Avançados (Minigames)
 
-Valores suportados pela logic engine (`Navigator.js`):
+| Campo | Tipo | Default | Descrição |
+| :--- | :--- | :--- | :--- |
+| `hexClass` | String (Enum) | - | Classe do HFGE (I-VI). Ajuda a UI a oferecer as ferramentas certas. |
+| `turn` | Object | - | Contador de turnos para jogos com limite de tempo (Classe VI). |
+| `situationalRules` | Array | `[]` | Múltiplos conjuntos de regras de navegação para gameplay dinâmico. |
+| `activeRuleSet` | String | - | ID do conjunto de regras situacionais ativo. |
+| `gamePoints` | Object | - | Sistema de pontos para dar agência ao jogador. |
+| `linkedFlowerId` | String | - | ID de um HF competidor/pareado (Classe IV). |
 
-- `"stop"` (Padrão): O movimento é bloqueado.
-- `"wrap"`: Teleporta para o hexágono antipodal (oposto simétrico).
-  - _Nota_: Requer simetria no grid para funcionar perfeitamente.
-- `"reflect"`: "Bate e volta" na direção oposta.
-- `"rotateCW"`: Rotaciona 60° sentido horário em torno do centro (0,0).
-- `"rotateCCW"`: Rotaciona 60° sentido anti-horário em torno do centro (0,0).
+## 2. Estrutura das Células (`cells`)
 
-> **Atenção**: O valor `"loop"` consta em esquemas antigos mas **não** é processado pelo motor de navegação atual (comportar-se-á como `stop` ou falhará). Prefira `wrap` ou `rotateCW`.
+### 2.1 Campos Básicos
 
-### 2. Regras de Navegação (`navigationRules`)
+| Campo | Uso Técnico |
+| :--- | :--- |
+| `coord` | **CRÍTICO**. Objeto `{q, r, s}`. |
+| `title` ou `name` | Título principal no painel de detalhes. |
+| `description` | Texto descritivo (HTML permitido). |
+| `bioma` | Exibido como "Type" no painel. |
+| `emoji` | Renderizado no centro do hexágono. |
+| `color` | Cor de fundo (`#RRGGBB`). |
+| `properties` | Objeto JSON livre para dados customizados. |
 
-Lista de gatilhos baseados em rolagem (geralmente 2d6).
+### 2.2 Campos Avançados (Minigames)
 
-| Propriedade | Tipo   | Descrição             |
-| :---------- | :----- | :-------------------- |
-| `min`       | Int    | Valor mínimo do dado. |
-| `max`       | Int    | Valor máximo do dado. |
-| `dir`       | String | Direção do movimento. |
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `isTerminal` | Boolean | Se `true`, marca o hex como um evento terminal (fim de jogo). |
+| `terminalType` | String | Classifica o resultado do evento terminal (ex: "win", "loss"). |
+| `onEnter` | String | ID de uma macro a ser executada ao **entrar** neste hex. |
+| `onExit` | String | ID de uma macro a ser executada ao **sair** deste hex. |
+| `wildCardJump` | Object | Define uma navegação excepcional a partir deste hex. |
+| `customEdgeBehavior` | String (Enum) | Sobrescreve o `edgeBehavior` global apenas para este hex. |
 
-**Direções Suportadas:**
+## 3. Detalhamento Técnico
 
-- `N` (Norte)
-- `NE` (Nordeste)
-- `SE` (Sudeste)
-- `S` (Sul)
-- `SW` (Sudoeste)
-- `NW` (Noroeste)
-- `SAME` (Ficar no mesmo hexágono)
+### `turn` (Objeto)
+- `current`: (Number) O turno atual do jogo. Começa em 0.
+- `limit`: (Number, opcional) O número máximo de turnos. Se `current >= limit`, o jogo termina.
 
-### 3. Células (`cells`)
+### `situationalRules` (Array)
+- Cada item é um objeto com `id`, `name`, `description` e `rules` (uma lista de regras de navegação).
+- Permite que o comportamento do NH mude dinamicamente via macros.
 
-Cada objeto célula aceita propriedades livres, mas as seguintes são processadas pela UI:
+### `gamePoints` (Objeto)
+- `name`: (String) O nome da "moeda" (ex: "Sorte", "Recursos").
+- `current`: (Number) A quantidade atual de pontos.
+- `max`: (Number, opcional) O máximo de pontos que podem ser acumulados.
 
-| Propriedade       | Uso Técnico                                                                                          |
-| :---------------- | :--------------------------------------------------------------------------------------------------- |
-| `coord`           | **CRÍTICO**. Objeto `{q, r, s}`. O sistema usa logica Axial (`q`, `r`). `s` é calculado como `-q-r`. |
-| `title` ou `name` | Título principal no painel de detalhes.                                                              |
-| `description`     | Texto descritivo (HTML permitido em alguns contextos).                                               |
-| `bioma`           | Exibido como "Type" no painel. Útil para categorização.                                              |
-| `emoji`           | Renderizado no centro do hexágono no SVG.                                                            |
-| `color`           | Cor de fundo (`#RRGGBB`).                                                                            |
-| `tags`            | Lista de strings (ex: `["danger", "cold"]`). Exibido como tags no painel.                            |
-| `properties`      | Objeto JSON livre (ex: `{ "difficulty": 5 }`). Exibido como lista de propriedades.                   |
+### `wildCardJump` (Objeto)
+- `roll`: (Number) O resultado do 2d6 que ativa o salto.
+- `targetCoord`: (Object) A coordenada `{q, r, s}` de destino.
 
-> **Campos Extras**: Quaisquer outros campos não listados aqui são preservados no JSON e acessíveis via scripts, mas ignorados pela UI padrão.
-
-### 4. Coordenadas (`coord`) e Orientação
-
-O sistema utiliza coordenadas cúbicas padrão.
-**Teste de Orientação (Grid 7-Hex):**
-
-- Centro: `{ q: 0, r: 0, s: 0 }`
-- Norte (N): `{ q: 0, r: -1, s: 1 }`
-- Sul (S): `{ q: 0, r: 1, s: -1 }`
-- Nordeste (NE): `{ q: 1, r: -1, s: 0 }`
-
----
-
-## Exemplos
+## 4. Exemplos
 
 ### Exemplo Mínimo (Funcional)
 
@@ -90,41 +83,58 @@ O sistema utiliza coordenadas cúbicas padrão.
 }
 ```
 
-### Exemplo Completo (Reference)
+### Exemplo Classe II: Volcano Eruption Tracker
+
+Este exemplo demonstra um jogo com um evento terminal e um limite de tempo.
 
 ```json
 {
-  "name": "Floresta Assombrada",
-  "version": "1.0",
-  "edgeBehavior": "wrap",
-  "partyActorId": "H4s8Jsh38s",
-  "activeHex": { "q": 0, "r": 0, "s": 0 },
-  "navigationRules": [
-    { "min": 2, "max": 3, "dir": "SW" },
-    { "min": 4, "max": 5, "dir": "S" },
-    { "min": 6, "max": 8, "dir": "SAME" },
-    { "min": 9, "max": 10, "dir": "N" },
-    { "min": 11, "max": 12, "dir": "NE" }
-  ],
+  "name": "Volcano Eruption Tracker",
+  "hexClass": "II",
+  "edgeBehavior": "stop",
+  "turn": { "current": 0, "limit": 12 },
   "cells": [
     {
       "coord": { "q": 0, "r": 0, "s": 0 },
-      "title": "Clareira Segura",
-      "description": "Luz do sol penetra aqui.",
-      "bioma": "Safe",
-      "color": "#90EE90",
-      "emoji": "🌳",
-      "tags": ["seguro", "dia"],
-      "properties": { "healRate": 1 }
+      "title": "Calm"
     },
     {
-      "coord": { "q": 0, "r": -1, "s": 1 },
-      "title": "Norte Escuro",
-      "description": "Árvores retorcidas.",
-      "bioma": "Dark",
-      "color": "#2F4F4F",
-      "emoji": "💀"
+      "coord": { "q": 0, "r": -2, "s": 2 },
+      "title": "ERUPTION!",
+      "isTerminal": true,
+      "terminalType": "loss",
+      "onEnter": "VolcanoEruptionMacro"
     }
+  ]
+}
+```
+
+### Exemplo Classe III: Trial by Jury
+
+Este exemplo demonstra um jogo com dois finais, NHs situacionais e game points.
+
+```json
+{
+  "name": "Trial by Jury",
+  "hexClass": "III",
+  "activeRuleSet": "innocent",
+  "situationalRules": [
+    {
+      "id": "innocent",
+      "name": "PCs are Innocent",
+      "rules": [ { "min": 2, "max": 8, "dir": "N" } ]
+    },
+    {
+      "id": "guilty",
+      "name": "PCs are Guilty",
+      "rules": [ { "min": 2, "max": 8, "dir": "S" } ]
+    }
+  ],
+  "gamePoints": { "name": "Legal Points", "current": 3 },
+  "cells": [
+    { "coord": { "q": 0, "r": 0, "s": 0 }, "title": "Trial Begins" },
+    { "coord": { "q": 0, "r": -2, "s": 2 }, "title": "INNOCENT!", "isTerminal": true, "terminalType": "win" },
+    { "coord": { "q": 0, "r": 2, "s": -2 }, "title": "GUILTY!", "isTerminal": true, "terminalType": "loss" }
   ]
 }
 ```
