@@ -62,8 +62,11 @@ export class HexFlowerManager extends HandlebarsApplicationMixin(
     });
 
     if (confirm) {
-      delete registry[id];
-      await saveRegistry(registry);
+      // Use Foundry's -= syntax to delete the key from the flag object
+      // Calling setFlag with an object containing "-=key": null deletes that key
+      await game.user.setFlag("world", "hex_flower_registry", {
+        [`-=${id}`]: null
+      });
       this.render(); // Re-render manager
     }
   }
